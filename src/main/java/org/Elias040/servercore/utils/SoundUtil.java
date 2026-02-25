@@ -26,12 +26,6 @@ public final class SoundUtil {
         play(player, plugin.getConfig().getString("spawn.teleporting-sound", ""));
     }
 
-    /**
-     * Unterstützt 3 Eingabe-Formate in der config:
-     * 1) Enum-Style: ENTITY_VILLAGER_NO
-     * 2) MC-Key ohne Namespace: entity.villager.no
-     * 3) Voller NamespacedKey: minecraft:entity.villager.no
-     */
     private static Sound parseSound(String input) {
         if (input == null) return null;
         String s = input.trim();

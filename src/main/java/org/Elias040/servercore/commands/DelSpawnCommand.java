@@ -9,11 +9,11 @@ import org.bukkit.entity.Player;
 
 import java.util.Map;
 
-public class SetSpawnCommand implements CommandExecutor {
+public class DelSpawnCommand implements CommandExecutor {
 
     private final Main plugin;
 
-    public SetSpawnCommand(Main plugin) {
+    public DelSpawnCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -31,24 +31,22 @@ public class SetSpawnCommand implements CommandExecutor {
         }
 
         if (args.length != 1) {
-            p.sendMessage(plugin.messages().plainComponent("&cUsage: /setspawn <name>"));
+            p.sendMessage(plugin.messages().plainComponent("&cUsage: /delspawn <name>"));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
         String name = args[0];
 
-        if (plugin.spawns().exists(name)) {
-            p.sendMessage(plugin.messages().component("spawn-already-exists", Map.of(
+        if (!plugin.spawns().deleteSpawn(name)) {
+            p.sendMessage(plugin.messages().component("spawn-not-found", Map.of(
                     "spawn_name", name
             )));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        plugin.spawns().setSpawn(name, p.getLocation());
-
-        p.sendMessage(plugin.messages().component("setspawn-success", Map.of(
+        p.sendMessage(plugin.messages().component("delspawn-success", Map.of(
                 "spawn_name", name
         )));
         return true;

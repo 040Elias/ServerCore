@@ -19,17 +19,17 @@ public class SpawnManager {
 
     public SpawnManager(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "spawns.yml");
+        this.file = new File(plugin.getDataFolder(), "data/spawns.yml");
         load();
     }
 
     public void load() {
         if (!file.exists()) {
             try {
-                plugin.getDataFolder().mkdirs();
+                file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                plugin.getLogger().severe("Failed to create spawns.yml: " + e.getMessage());
+                plugin.getLogger().severe("Failed to create data/spawns.yml: " + e.getMessage());
             }
         }
         this.cfg = YamlConfiguration.loadConfiguration(file);
@@ -39,8 +39,12 @@ public class SpawnManager {
         try {
             cfg.save(file);
         } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save spawns.yml: " + e.getMessage());
+            plugin.getLogger().severe("Failed to save data/spawns.yml: " + e.getMessage());
         }
+    }
+
+    public boolean exists(String name) {
+        return cfg.contains("spawns." + normalize(name) + ".world");
     }
 
     public void setSpawn(String name, Location loc) {
@@ -56,6 +60,15 @@ public class SpawnManager {
         save();
     }
 
+    public boolean deleteSpawn(String name) {
+        String key = "spawns." + normalize(name);
+        if (!cfg.contains(key)) return false;
+
+        cfg.set(key, null);
+        save();
+        return true;
+    }
+
     public Optional<Location> getSpawn(String name) {
         String key = "spawns." + normalize(name);
         String worldName = cfg.getString(key + ".world");
@@ -67,7 +80,7 @@ public class SpawnManager {
         double x = cfg.getDouble(key + ".x");
         double y = cfg.getDouble(key + ".y");
         double z = cfg.getDouble(key + ".z");
-        float yaw = (float) cfg.getDouble(key + ".yaw");
+        float yaw   = (float) cfg.getDouble(key + ".yaw");
         float pitch = (float) cfg.getDouble(key + ".pitch");
 
         return Optional.of(new Location(world, x, y, z, yaw, pitch));

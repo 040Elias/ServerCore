@@ -1,5 +1,7 @@
 package org.Elias040.servercore;
 
+import org.Elias040.servercore.commands.BroadcastCommand;
+import org.Elias040.servercore.commands.DelSpawnCommand;
 import org.Elias040.servercore.commands.InvSeeCommand;
 import org.Elias040.servercore.commands.SetSpawnCommand;
 import org.Elias040.servercore.commands.SpawnCommand;
@@ -28,8 +30,14 @@ public class Main extends JavaPlugin {
         var setSpawnCmd = getCommand("setspawn");
         if (setSpawnCmd != null) setSpawnCmd.setExecutor(new SetSpawnCommand(this));
 
+        var delSpawnCmd = getCommand("delspawn");
+        if (delSpawnCmd != null) delSpawnCmd.setExecutor(new DelSpawnCommand(this));
+
         var invseeCmd = getCommand("invsee");
         if (invseeCmd != null) invseeCmd.setExecutor(new InvSeeCommand(this));
+
+        var broadcastCmd = getCommand("broadcast");
+        if (broadcastCmd != null) broadcastCmd.setExecutor(new BroadcastCommand(this));
 
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);
     }

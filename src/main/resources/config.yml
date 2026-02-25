@@ -1,11 +1,14 @@
 global:
-  error-sound: "ENTITY_VILLAGER_NO"
+  error-sound: "ENTITY.VILLAGER.NO"
 
 spawn:
   teleport-delay-seconds: 5
   cooldown-seconds: 10
-  teleporting-sound: "BLOCK_NOTE_BLOCK_PLING"
+  teleporting-sound: "BLOCK.NOTE_BLOCK.PLING"
   default-spawn: "1"
 
 invsee:
-  title: "&7InvSee: &#38c1fc%target%"
+  title: "&fInvSee: &#38c1fc%target%"
+
+broadcast:
+  sound: "BLOCK.NOTE_BLOCK.BELL"

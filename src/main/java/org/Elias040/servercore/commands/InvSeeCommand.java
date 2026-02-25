@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class InvSeeCommand implements CommandExecutor {
@@ -23,12 +24,12 @@ public class InvSeeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player viewer)) {
-            sender.sendMessage("This command can only be used by players.");
+            sender.sendMessage(plugin.messages().raw("only-players"));
             return true;
         }
 
         if (!viewer.hasPermission("servercore.invsee")) {
-            viewer.sendMessage(TextUtil.toComponent(plugin.messages().raw("no-permission")));
+            viewer.sendMessage(plugin.messages().component("no-permission", Map.of()));
             SoundUtil.playError(plugin, viewer);
             return true;
         }
@@ -41,7 +42,7 @@ public class InvSeeCommand implements CommandExecutor {
 
         Player target = Bukkit.getPlayerExact(args[0]);
         if (target == null || !target.isOnline()) {
-            viewer.sendMessage(TextUtil.toComponent("&cPlayer not found."));
+            viewer.sendMessage(plugin.messages().component("player-not-found", Map.of()));
             SoundUtil.playError(plugin, viewer);
             return true;
         }
@@ -56,7 +57,7 @@ public class InvSeeCommand implements CommandExecutor {
                 String rawTitle = plugin.getConfig().getString("invsee.title", "&7InvSee: %target%");
                 rawTitle = rawTitle.replace("%target%", target.getName());
 
-                var title = org.Elias040.servercore.utils.TextUtil.toComponent(rawTitle);
+                var title = TextUtil.toComponent(rawTitle);
                 Inventory gui = Bukkit.createInventory(null, 45, title);
 
                 for (int i = 0; i <= 40; i++) {

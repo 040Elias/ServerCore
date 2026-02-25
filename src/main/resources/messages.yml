@@ -1,11 +1,15 @@
-# Global Messages
 only-players: "&cThis command can only be used by players."
 no-permission: "&cYou don't have permission."
+player-not-found: "&cThat player does not exist."
 
-# Spawn Messages
 spawn-teleport-success: "&7You teleported to &#38c1fcSpawn %spawn_name%"
 spawn-teleport-actionbar: "&7Teleporting in &#38c1fc%spawn_teleport_time_remaining%s"
 spawn-not-found: "&cCould not find the spawn you specified."
 spawn-move: "&cTeleport cancelled because you moved."
+spawn-already-exists: "&cA Spawn with that name already exists."
 setspawn-success: "&7Set spawn '&#38c1fc%spawn_name%&7'"
+delspawn-success: "&7Deleted spawn '&#38c1fc%spawn_name%&7'"
 cooldown-active: "&cYou must wait %cooldown_remaining%s before using /spawn again."
+
+broadcast-title: "&l&#38c1fcAnnouncement"
+broadcast-chat-prefix: "&#38c1fc&l[Announcement]&r&7"
