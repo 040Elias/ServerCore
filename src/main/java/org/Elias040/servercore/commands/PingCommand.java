@@ -2,6 +2,7 @@ package org.Elias040.servercore.commands;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.SoundUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,11 +12,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public class DelSpawnCommand implements CommandExecutor, TabCompleter {
+public class PingCommand implements CommandExecutor, TabCompleter {
 
     private final Main plugin;
 
-    public DelSpawnCommand(Main plugin) {
+    public PingCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -26,34 +27,38 @@ public class DelSpawnCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!p.hasPermission("servercore.spawn.setspawn")) {
+        if (args.length == 0) {
+            p.sendMessage(plugin.messages().component("ping-self", Map.of(
+                    "ping", String.valueOf(p.getPing())
+            )));
+            return true;
+        }
+
+        if (!p.hasPermission("servercore.ping.other")) {
             p.sendMessage(plugin.messages().component("no-permission", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        if (args.length != 1) {
-            p.sendMessage(plugin.messages().plainComponent("&cUsage: /delspawn <n>"));
+        Player target = Bukkit.getPlayerExact(args[0]);
+        if (target == null || !target.isOnline()) {
+            p.sendMessage(plugin.messages().component("player-not-found", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        String name = args[0];
-
-        if (!plugin.spawns().deleteSpawn(name)) {
-            p.sendMessage(plugin.messages().component("spawn-not-found", Map.of("spawn_name", name)));
-            SoundUtil.playError(plugin, p);
-            return true;
-        }
-
-        p.sendMessage(plugin.messages().component("delspawn-success", Map.of("spawn_name", name)));
+        p.sendMessage(plugin.messages().component("ping-other", Map.of(
+                "player", target.getName(),
+                "ping", String.valueOf(target.getPing())
+        )));
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args.length == 1) {
-            return plugin.spawns().getSpawnNames().stream()
+        if (args.length == 1 && sender.hasPermission("servercore.ping.other")) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .toList();
         }

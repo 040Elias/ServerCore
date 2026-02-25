@@ -1,5 +1,5 @@
 name: ServerCore
-version: '1.2'
+version: '1.3'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
@@ -10,14 +10,14 @@ folia-supported: true
 
 commands:
   spawn:
-    usage: /spawn <name>
+    usage: /spawn [name]
     permission: servercore.spawn.use
     default: true
   setspawn:
-    usage: /setspawn <name>
+    usage: /setspawn <n>
     permission: servercore.spawn.setspawn
   delspawn:
-    usage: /delspawn <name>
+    usage: /delspawn <n>
     permission: servercore.spawn.delspawn
   invsee:
     usage: /invsee <player>
@@ -25,6 +25,22 @@ commands:
   broadcast:
     usage: /broadcast <message>
     permission: servercore.broadcast
+  nightvision:
+    usage: /nightvision
+    permission: servercore.nightvision
+    aliases: [nv]
+  ping:
+    usage: /ping [player]
+    permission: servercore.ping
+  freeze:
+    usage: /freeze <player>
+    permission: servercore.freeze
+  unfreeze:
+    usage: /unfreeze <player>
+    permission: servercore.unfreeze
+  servercore:
+    usage: /servercore reload
+    permission: servercore.reload
 
 permissions:
   servercore.spawn.setspawn:
@@ -36,4 +52,20 @@ permissions:
   servercore.invsee:
     default: op
   servercore.broadcast:
+    default: op
+  servercore.nightvision:
+    default: true
+  servercore.ping:
+    default: true
+  servercore.ping.other:
+    default: true
+  servercore.freeze:
+    default: op
+  servercore.freeze.bypass:
+    default: false
+  servercore.freeze.notify:
+    default: op
+  servercore.unfreeze:
+    default: op
+  servercore.reload:
     default: op

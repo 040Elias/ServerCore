@@ -8,6 +8,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -47,23 +49,26 @@ public class SpawnManager {
         return cfg.contains("spawns." + normalize(name) + ".world");
     }
 
+    public List<String> getSpawnNames() {
+        var section = cfg.getConfigurationSection("spawns");
+        if (section == null) return Collections.emptyList();
+        return List.copyOf(section.getKeys(false));
+    }
+
     public void setSpawn(String name, Location loc) {
         String key = "spawns." + normalize(name);
-
         cfg.set(key + ".world", loc.getWorld().getName());
         cfg.set(key + ".x", loc.getX());
         cfg.set(key + ".y", loc.getY());
         cfg.set(key + ".z", loc.getZ());
         cfg.set(key + ".yaw", loc.getYaw());
         cfg.set(key + ".pitch", loc.getPitch());
-
         save();
     }
 
     public boolean deleteSpawn(String name) {
         String key = "spawns." + normalize(name);
         if (!cfg.contains(key)) return false;
-
         cfg.set(key, null);
         save();
         return true;

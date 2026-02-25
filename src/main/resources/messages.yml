@@ -13,3 +13,19 @@ cooldown-active: "&cYou must wait %cooldown_remaining%s before using /spawn agai
 
 broadcast-title: "&l&#38c1fcAnnouncement"
 broadcast-chat-prefix: "&#38c1fc&l[Announcement]&r&7"
+
+nightvision-enabled: "&7Night vision activated"
+nightvision-disabled: "&7Night vision deactivated"
+
+ping-self: "&7Your ping is &#38c1fc%ping%ms"
+ping-other: "&7%player%'s ping is &#38c1fc%ping%ms"
+
+freeze-frozen: "&#38c1fc%player%&7 has been &#38c1fcfrozen&7."
+freeze-unfrozen: "&#38c1fc%player%&7 has been &#38c1fcunfrozen&7."
+freeze-already-frozen: "&c%player% is already frozen."
+freeze-not-frozen: "&c%player% is not frozen."
+freeze-command-blocked: "&cYou cannot use commands while frozen."
+freeze-staff-leave: "&7&#38c1fc[Freeze] &#38c1fc%player% &7left the server while frozen."
+freeze-staff-rejoin: "&7&#38c1fc[Freeze] &#38c1fc%player% &7rejoined the server while frozen."
+freeze-title: "&#38c1fc&lYou are frozen!"
+freeze-subtitle: "&7Please wait for a staff member."

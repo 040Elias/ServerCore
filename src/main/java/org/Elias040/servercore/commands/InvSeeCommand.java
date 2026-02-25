@@ -5,15 +5,19 @@ import org.Elias040.servercore.invsee.InvSeeSessions;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class InvSeeCommand implements CommandExecutor {
+public class InvSeeCommand implements CommandExecutor, TabCompleter {
 
     private final Main plugin;
 
@@ -72,6 +76,17 @@ public class InvSeeCommand implements CommandExecutor {
         return true;
     }
 
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length == 1) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .toList();
+        }
+        return List.of();
+    }
+
     private ItemStack[] snapshotTargetInventory(Player target) {
         ItemStack[] out = new ItemStack[41];
         var inv = target.getInventory();
@@ -80,7 +95,6 @@ public class InvSeeCommand implements CommandExecutor {
             ItemStack it = inv.getItem(i);
             out[i] = (it == null ? null : it.clone());
         }
-
         for (int i = 36; i <= 39; i++) {
             ItemStack it = inv.getItem(i);
             out[i] = (it == null ? null : it.clone());
