@@ -13,18 +13,13 @@ public final class TextUtil {
         return MM.deserialize(legacyToMiniMessage(legacyWithHex));
     }
 
-    // Supports:
-    //  - &a, &7, &l, &r ...
-    //  - &#RRGGBB (your format)
     private static String legacyToMiniMessage(String input) {
         if (input == null) return "";
 
         String s = input;
 
-        // &#RRGGBB -> <#RRGGBB>
         s = s.replaceAll("(?i)&\\#([0-9a-f]{6})", "<#$1>");
 
-        // color codes
         s = s
                 .replace("&0", "<black>")
                 .replace("&1", "<dark_blue>")
@@ -49,7 +44,6 @@ public final class TextUtil {
                 .replace("&k", "<obfuscated>")
                 .replace("&r", "<reset>");
 
-        // uppercase variants (optional safety)
         s = s
                 .replace("&A", "<green>")
                 .replace("&B", "<aqua>")

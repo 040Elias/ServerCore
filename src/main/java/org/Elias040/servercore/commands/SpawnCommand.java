@@ -16,12 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SpawnCommand implements CommandExecutor {
 
-    // Cancel wenn >= 3 Blöcke (nur X/Z, Y ignoriert)
-    private static final double MOVE_CANCEL_DISTANCE_SQUARED = 9.0; // 3^2
+    private static final double MOVE_CANCEL_DISTANCE_SQUARED = 9.0;
 
     private final Main plugin;
 
-    // cooldown + "already teleporting"
     private final ConcurrentHashMap<UUID, Long> lastUseMillis = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Boolean> teleporting = new ConcurrentHashMap<>();
 
@@ -36,7 +34,6 @@ public class SpawnCommand implements CommandExecutor {
             return true;
         }
 
-        // spawn name: arg0 or default
         String spawnName;
         if (args.length == 0) {
             spawnName = plugin.getConfig().getString("spawn.default-spawn", "1");
@@ -57,7 +54,6 @@ public class SpawnCommand implements CommandExecutor {
             return true;
         }
 
-        // prevent multiple countdowns
         if (teleporting.getOrDefault(p.getUniqueId(), false)) {
             return true;
         }
@@ -79,7 +75,6 @@ public class SpawnCommand implements CommandExecutor {
         int delaySeconds = ConfigUtil.getInt(plugin, "spawn.teleport-delay-seconds", 3);
         Location target = targetOpt.get();
 
-        // set cooldown at start (prevents spam)
         lastUseMillis.put(p.getUniqueId(), System.currentTimeMillis());
         teleporting.put(p.getUniqueId(), true);
 
@@ -104,7 +99,6 @@ public class SpawnCommand implements CommandExecutor {
                 return;
             }
 
-            // cancel if player moved >= 3 blocks in X/Z
             if (movedTooFarXZ(start, player.getLocation())) {
                 teleporting.remove(player.getUniqueId());
                 task.cancel();

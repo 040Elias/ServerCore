@@ -1,9 +1,11 @@
 package org.Elias040.servercore;
 
+import org.Elias040.servercore.commands.InvSeeCommand;
 import org.Elias040.servercore.commands.SetSpawnCommand;
 import org.Elias040.servercore.commands.SpawnCommand;
 import org.Elias040.servercore.spawn.SpawnManager;
 import org.Elias040.servercore.utils.MessageManager;
+import org.Elias040.servercore.invsee.InvSeeListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -25,13 +27,13 @@ public class Main extends JavaPlugin {
 
         var setSpawnCmd = getCommand("setspawn");
         if (setSpawnCmd != null) setSpawnCmd.setExecutor(new SetSpawnCommand(this));
+
+        var invseeCmd = getCommand("invsee");
+        if (invseeCmd != null) invseeCmd.setExecutor(new InvSeeCommand(this));
+
+        getServer().getPluginManager().registerEvents(new InvSeeListener(), this);
     }
 
-    public MessageManager messages() {
-        return messageManager;
-    }
-
-    public SpawnManager spawns() {
-        return spawnManager;
-    }
+    public MessageManager messages() { return messageManager; }
+    public SpawnManager spawns() { return spawnManager; }
 }

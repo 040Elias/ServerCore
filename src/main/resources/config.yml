@@ -6,3 +6,6 @@ spawn:
   cooldown-seconds: 10
   teleporting-sound: "BLOCK_NOTE_BLOCK_PLING"
   default-spawn: "1"
+
+invsee:
+  title: "&7InvSee: &#38c1fc%target%"

@@ -2,19 +2,26 @@ name: ServerCore
 version: '1.0'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
-prefix: [ ServerCore ]
+prefix: ServerCore
 load: STARTUP
-authors: [ 040Elias ]
+authors: 040Elias
 description: Work in Progress ServerCore Plugin
 folia-supported: true
 
 commands:
   spawn:
     usage: /spawn <name>
+    permission: servercore.spawn.use
+    default: true
   setspawn:
     usage: /setspawn <name>
-    permission: servercore.admin
+    permission: servercore.spawn.setspawn
+  invsee:
+    usage: /invsee <player>
+    permission: servercore.invsee
 
 permissions:
-  servercore.admin:
+  servercore.spawn.setspawn:
+    default: op
+  servercore.invsee:
     default: op

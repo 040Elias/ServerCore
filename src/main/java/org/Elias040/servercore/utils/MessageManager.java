@@ -36,7 +36,6 @@ public class MessageManager {
         return TextUtil.toComponent(s);
     }
 
-    // for hardcoded simple messages
     public Component plainComponent(String legacyWithHex) {
         return TextUtil.toComponent(legacyWithHex);
     }

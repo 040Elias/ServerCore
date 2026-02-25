@@ -37,20 +37,17 @@ public final class SoundUtil {
         String s = input.trim();
         if (s.isEmpty()) return null;
 
-        // 3) already namespaced, e.g. "minecraft:entity.villager.no"
         if (s.contains(":")) {
             NamespacedKey key = NamespacedKey.fromString(s.toLowerCase(Locale.ROOT));
             if (key == null) return null;
             return Registry.SOUNDS.get(key);
         }
 
-        // 2) dot key without namespace, e.g. "entity.villager.no"
         if (s.contains(".")) {
             NamespacedKey key = NamespacedKey.minecraft(s.toLowerCase(Locale.ROOT));
             return Registry.SOUNDS.get(key);
         }
 
-        // 1) enum-style, e.g. "ENTITY_VILLAGER_NO" -> "entity.villager.no"
         String keyPart = s.toLowerCase(Locale.ROOT).replace('_', '.');
         NamespacedKey key = NamespacedKey.minecraft(keyPart);
         return Registry.SOUNDS.get(key);
