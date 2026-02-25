@@ -1,0 +1,11 @@
+# Global Messages
+only-players: "&cThis command can only be used by players."
+no-permission: "&cYou don't have permission."
+
+# Spawn Messages
+spawn-teleport-success: "&7You teleported to &#38c1fcSpawn %spawn_name%"
+spawn-teleport-actionbar: "&7Teleporting in &#38c1fc%spawn_teleport_time_remaining%s"
+spawn-not-found: "&cCould not find the spawn you specified."
+spawn-move: "&cTeleport cancelled because you moved."
+setspawn-success: "&7Set spawn '&#38c1fc%spawn_name%&7'"
+cooldown-active: "&cYou must wait %cooldown_remaining%s before using /spawn again."

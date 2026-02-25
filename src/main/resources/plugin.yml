@@ -6,3 +6,15 @@ prefix: [ ServerCore ]
 load: STARTUP
 authors: [ 040Elias ]
 description: Work in Progress ServerCore Plugin
+folia-supported: true
+
+commands:
+  spawn:
+    usage: /spawn <name>
+  setspawn:
+    usage: /setspawn <name>
+    permission: servercore.admin
+
+permissions:
+  servercore.admin:
+    default: op
