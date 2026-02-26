@@ -1,8 +1,10 @@
 package org.Elias040.servercore.commands;
 
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.msg.MsgSession;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,11 +14,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public class DelSpawnCommand implements CommandExecutor, TabCompleter {
+public class MsgCommand implements CommandExecutor, TabCompleter {
 
     private final Main plugin;
 
-    public DelSpawnCommand(Main plugin) {
+    public MsgCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -27,34 +29,54 @@ public class DelSpawnCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!p.hasPermission("servercore.spawn.setspawn")) {
+        if (!p.hasPermission("servercore.msg")) {
             p.sendMessage(plugin.messages().component("no-permission", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        if (args.length != 1) {
-            p.sendMessage(TextUtil.toComponent("&cUsage: /delspawn <n>"));
+        if (args.length < 2) {
+            p.sendMessage(TextUtil.toComponent("&cUsage: /msg <player> <message>"));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        String name = args[0];
-
-        if (!plugin.spawns().deleteSpawn(name)) {
-            p.sendMessage(plugin.messages().component("spawn-not-found", Map.of("spawn_name", name)));
+        Player target = Bukkit.getPlayerExact(args[0]);
+        if (target == null || !target.isOnline()) {
+            p.sendMessage(plugin.messages().component("player-not-found", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        p.sendMessage(plugin.messages().component("delspawn-success", Map.of("spawn_name", name)));
+        if (target.equals(p)) {
+            p.sendMessage(plugin.messages().component("msg-self", Map.of()));
+            SoundUtil.playError(plugin, p);
+            return true;
+        }
+
+        String message = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
+
+        p.sendMessage(plugin.messages().component("msg-sender", Map.of(
+                "receiver", target.getName(),
+                "message", message
+        )));
+
+        target.sendMessage(plugin.messages().component("msg-receiver", Map.of(
+                "sender", p.getName(),
+                "message", message
+        )));
+
+        MsgSession.set(p.getUniqueId(), target.getUniqueId());
+
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 1) {
-            return plugin.spawns().getSpawnNames().stream()
+            return Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> !p.equals(sender))
+                    .map(Player::getName)
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .toList();
         }

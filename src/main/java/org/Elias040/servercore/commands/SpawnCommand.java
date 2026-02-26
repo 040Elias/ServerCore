@@ -3,6 +3,7 @@ package org.Elias040.servercore.commands;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.ConfigUtil;
 import org.Elias040.servercore.utils.SoundUtil;
+import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -42,7 +43,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 1) {
             spawnName = args[0];
         } else {
-            p.sendMessage(plugin.messages().plainComponent("&cUsage: /spawn <name>"));
+            p.sendMessage(TextUtil.toComponent("&cUsage: /spawn <name>"));
             SoundUtil.playError(plugin, p);
             return true;
         }
@@ -138,6 +139,11 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
                             , null)
             );
         }, null);
+    }
+
+    public void cleanup(java.util.UUID uuid) {
+        teleporting.remove(uuid);
+        lastUseMillis.remove(uuid);
     }
 
     private boolean movedTooFarXZ(Location start, Location current) {

@@ -1,5 +1,5 @@
 name: ServerCore
-version: '1.5'
+version: '1.6'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
@@ -41,6 +41,14 @@ commands:
   whois:
     usage: /whois <player>
     permission: servercore.whois.use
+  msg:
+    usage: /msg <player> <message>
+    permission: servercore.msg
+    aliases: [message, tell, whisper]
+  reply:
+    usage: /reply <message>
+    permission: servercore.msg
+    aliases: [r]
   servercore:
     usage: /servercore reload
     permission: servercore.reload
@@ -62,13 +70,13 @@ permissions:
     default: true
   servercore.ping.other:
     default: op
-  servercore.freeze.use:
+  servercore.freeze:
     default: op
   servercore.freeze.bypass:
     default: false
   servercore.freeze.notify:
     default: op
-  servercore.unfreeze.use:
+  servercore.unfreeze:
     default: op
   servercore.whois.use:
     default: op
@@ -76,5 +84,7 @@ permissions:
     default: op
   servercore.join.silent:
     default: false
+  servercore.msg:
+    default: true
   servercore.reload:
     default: op

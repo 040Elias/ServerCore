@@ -13,15 +13,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class WhoisCommand implements CommandExecutor, TabCompleter {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter
+            .ofPattern("dd.MM.yyyy HH:mm")
+            .withZone(ZoneId.systemDefault());
 
     private final Main plugin;
 
@@ -64,9 +67,9 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
         lines.add(TextUtil.toComponent("&#38c1fc&l--- Whois of " + target.getName() + " ---"));
         lines.add(Component.empty());
         lines.add(line("UUID",       target.getUniqueId().toString()));
-        lines.add(line("First Join", DATE_FORMAT.format(new Date(target.getFirstPlayed()))));
+        lines.add(line("First Join", DATE_FORMAT.format(Instant.ofEpochMilli(target.getFirstPlayed()))));
 
-        lines.add(line("Last Seen", DATE_FORMAT.format(new Date(target.getLastSeen()))));
+        lines.add(line("Last Seen", DATE_FORMAT.format(Instant.ofEpochMilli(target.getLastSeen()))));
         lines.add(line("Playtime",   formatPlaytime(target.getStatistic(Statistic.PLAY_ONE_MINUTE))));
         lines.add(line("Ping",       target.getPing() + "ms"));
 

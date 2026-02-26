@@ -2,6 +2,7 @@ package org.Elias040.servercore.commands;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.SoundUtil;
+import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,7 +32,7 @@ public class SetSpawnCommand implements CommandExecutor {
         }
 
         if (args.length != 1) {
-            p.sendMessage(plugin.messages().plainComponent("&cUsage: /setspawn <name>"));
+            p.sendMessage(TextUtil.toComponent("&cUsage: /setspawn <name>"));
             SoundUtil.playError(plugin, p);
             return true;
         }

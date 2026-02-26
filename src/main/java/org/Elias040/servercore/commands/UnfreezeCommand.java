@@ -3,6 +3,7 @@ package org.Elias040.servercore.commands;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.freeze.FreezeManager;
 import org.Elias040.servercore.utils.SoundUtil;
+import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,7 +35,7 @@ public class UnfreezeCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
-            sender.sendMessage(plugin.messages().plainComponent("&cUsage: /unfreeze <player>"));
+            sender.sendMessage(TextUtil.toComponent("&cUsage: /unfreeze <player>"));
             return true;
         }
 
