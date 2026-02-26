@@ -10,6 +10,7 @@ import org.Elias040.servercore.commands.ReloadCommand;
 import org.Elias040.servercore.commands.SetSpawnCommand;
 import org.Elias040.servercore.commands.SpawnCommand;
 import org.Elias040.servercore.commands.UnfreezeCommand;
+import org.Elias040.servercore.commands.WhoisCommand;
 import org.Elias040.servercore.freeze.FreezeListener;
 import org.Elias040.servercore.invsee.InvSeeListener;
 import org.Elias040.servercore.listeners.JoinLeaveListener;
@@ -45,6 +46,7 @@ public class Main extends JavaPlugin {
         registerCommand("ping",        new PingCommand(this));
         registerCommand("freeze",      new FreezeCommand(this, freezeListener));
         registerCommand("unfreeze",    new UnfreezeCommand(this));
+        registerCommand("whois",       new WhoisCommand(this));
         registerCommand("servercore",  new ReloadCommand(this));
 
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);

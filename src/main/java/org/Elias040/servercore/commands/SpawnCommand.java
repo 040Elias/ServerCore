@@ -132,9 +132,11 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
 
     private void doTeleport(Player player, String spawnName, Location target) {
         player.getScheduler().run(plugin, (task) -> {
-            player.teleportAsync(target).thenRun(() -> {
-                player.sendMessage(plugin.messages().component("spawn-teleport-success", Map.of("spawn_name", spawnName)));
-            });
+            player.teleportAsync(target).thenRun(() ->
+                    player.getScheduler().run(plugin, t ->
+                                    player.sendMessage(plugin.messages().component("spawn-teleport-success", Map.of("spawn_name", spawnName)))
+                            , null)
+            );
         }, null);
     }
 

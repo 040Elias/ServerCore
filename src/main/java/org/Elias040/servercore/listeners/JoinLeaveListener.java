@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class JoinLeaveListener implements Listener {
 
+
     private final Main plugin;
 
     public JoinLeaveListener(Main plugin) {
@@ -21,8 +22,9 @@ public class JoinLeaveListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-
         e.joinMessage(null);
+
+        if (player.hasPermission("servercore.join.silent")) return;
 
         if (!player.hasPlayedBefore()) {
             plugin.getServer().sendMessage(plugin.messages().component("first-join", Map.of(
@@ -37,10 +39,13 @@ public class JoinLeaveListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
         e.quitMessage(null);
 
+        if (player.hasPermission("servercore.join.silent")) return;
+
         plugin.getServer().sendMessage(plugin.messages().component("leave", Map.of(
-                "player", e.getPlayer().getName()
+                "player", player.getName()
         )));
     }
 }

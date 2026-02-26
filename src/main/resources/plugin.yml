@@ -1,5 +1,5 @@
 name: ServerCore
-version: '1.4'
+version: '1.5'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
@@ -38,6 +38,9 @@ commands:
   unfreeze:
     usage: /unfreeze <player>
     permission: servercore.unfreeze
+  whois:
+    usage: /whois <player>
+    permission: servercore.whois.use
   servercore:
     usage: /servercore reload
     permission: servercore.reload
@@ -54,18 +57,24 @@ permissions:
   servercore.broadcast:
     default: op
   servercore.nightvision:
-    default: true
+    default: op
   servercore.ping:
     default: true
   servercore.ping.other:
-    default: true
-  servercore.freeze:
+    default: op
+  servercore.freeze.use:
     default: op
   servercore.freeze.bypass:
     default: false
   servercore.freeze.notify:
     default: op
-  servercore.unfreeze:
+  servercore.unfreeze.use:
     default: op
+  servercore.whois.use:
+    default: op
+  servercore.whois.sensitive:
+    default: op
+  servercore.join.silent:
+    default: false
   servercore.reload:
     default: op
