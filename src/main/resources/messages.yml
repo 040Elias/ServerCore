@@ -29,3 +29,7 @@ freeze-staff-leave: "&7&#38c1fc[Freeze] &#38c1fc%player% &7left the server while
 freeze-staff-rejoin: "&7&#38c1fc[Freeze] &#38c1fc%player% &7rejoined the server while frozen."
 freeze-title: "&#38c1fc&lYou are frozen!"
 freeze-subtitle: "&7Please wait for a staff member."
+
+join: "&7[&a+&7] &7%player%"
+leave: "&7[&c-&7] &7%player%"
+first-join: "&7[&c!&7] %player% joined for the first time!"
