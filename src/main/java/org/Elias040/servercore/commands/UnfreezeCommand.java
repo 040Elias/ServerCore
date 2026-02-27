@@ -60,13 +60,19 @@ public class UnfreezeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        FreezeManager.unfreeze(target);
-        target.clearTitle();
+        String targetName = target.getName();
 
+        // PDC remove and clearTitle must run on target's entity thread
+        target.getScheduler().run(plugin, t -> {
+            FreezeManager.unfreeze(target);
+            target.clearTitle();
+        }, null);
+
+        // Confirmation to sender — sender is already on their own thread
         if (sender instanceof Player p) {
-            p.sendMessage(plugin.messages().component("freeze-unfrozen", Map.of("player", target.getName())));
+            p.sendMessage(plugin.messages().component("freeze-unfrozen", Map.of("player", targetName)));
         } else {
-            sender.sendMessage(plugin.messages().raw("freeze-unfrozen").replace("%player%", target.getName()));
+            sender.sendMessage(plugin.messages().raw("freeze-unfrozen").replace("%player%", targetName));
         }
         return true;
     }

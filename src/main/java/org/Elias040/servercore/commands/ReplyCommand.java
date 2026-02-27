@@ -1,5 +1,6 @@
 package org.Elias040.servercore.commands;
 
+import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.msg.MsgSession;
 import org.Elias040.servercore.utils.SoundUtil;
@@ -57,15 +58,21 @@ public class ReplyCommand implements CommandExecutor {
 
         String message = String.join(" ", args);
 
-        p.sendMessage(plugin.messages().component("msg-sender", Map.of(
+        // Pre-build both components — Component is immutable, safe across threads
+        Component senderMsg = plugin.messages().component("msg-sender", Map.of(
                 "receiver", target.getName(),
                 "message", message
-        )));
-
-        target.sendMessage(plugin.messages().component("msg-receiver", Map.of(
+        ));
+        Component receiverMsg = plugin.messages().component("msg-receiver", Map.of(
                 "sender", p.getName(),
                 "message", message
-        )));
+        ));
+
+        // Sender is already on their own entity thread
+        p.sendMessage(senderMsg);
+
+        // Target may be in a different region — schedule on their entity thread
+        target.getScheduler().run(plugin, t -> target.sendMessage(receiverMsg), null);
 
         MsgSession.set(p.getUniqueId(), target.getUniqueId());
 

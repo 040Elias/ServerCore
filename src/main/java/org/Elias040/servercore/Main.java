@@ -58,7 +58,7 @@ public class Main extends JavaPlugin {
         registerCommand("servercore",  new ReloadCommand(this));
 
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);
-        getServer().getPluginManager().registerEvents(new NightVisionListener(), this);
+        getServer().getPluginManager().registerEvents(new NightVisionListener(this), this);
         getServer().getPluginManager().registerEvents(freezeListener, this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         getServer().getPluginManager().registerEvents(new MsgQuitListener(), this);

@@ -1,5 +1,6 @@
 package org.Elias040.servercore.commands;
 
+import net.kyori.adventure.title.Title;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.freeze.FreezeListener;
 import org.Elias040.servercore.freeze.FreezeManager;
@@ -63,13 +64,21 @@ public class FreezeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        FreezeManager.freeze(target);
-        target.showTitle(listener.buildFreezeTitle());
+        // Pre-build immutable objects before scheduling
+        Title freezeTitle = listener.buildFreezeTitle();
+        String targetName = target.getName();
 
+        // PDC write and showTitle must run on target's entity thread
+        target.getScheduler().run(plugin, t -> {
+            FreezeManager.freeze(target);
+            target.showTitle(freezeTitle);
+        }, null);
+
+        // Confirmation to sender — sender is already on their own thread
         if (sender instanceof Player p) {
-            p.sendMessage(plugin.messages().component("freeze-frozen", Map.of("player", target.getName())));
+            p.sendMessage(plugin.messages().component("freeze-frozen", Map.of("player", targetName)));
         } else {
-            sender.sendMessage(plugin.messages().raw("freeze-frozen").replace("%player%", target.getName()));
+            sender.sendMessage(plugin.messages().raw("freeze-frozen").replace("%player%", targetName));
         }
         return true;
     }

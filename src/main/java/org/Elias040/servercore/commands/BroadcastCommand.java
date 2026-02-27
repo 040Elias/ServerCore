@@ -41,9 +41,9 @@ public class BroadcastCommand implements CommandExecutor {
 
         String message = String.join(" ", args);
 
+        // Pre-build immutable objects outside the loop — safe from any thread
         Component titleComponent = plugin.messages().component("broadcast-title", Map.of());
         Component subtitleComponent = TextUtil.toComponent(message);
-
         Title.Times times = Title.Times.times(
                 Duration.ofMillis(500),
                 Duration.ofSeconds(4),
@@ -60,10 +60,13 @@ public class BroadcastCommand implements CommandExecutor {
 
         String soundName = plugin.getConfig().getString("broadcast.sound", "block.note_block.bell");
 
+        // Schedule each player operation on the player's own entity thread
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.showTitle(title);
-            player.sendMessage(chatLine);
-            SoundUtil.play(player, soundName);
+            player.getScheduler().run(plugin, t -> {
+                player.showTitle(title);
+                player.sendMessage(chatLine);
+                SoundUtil.play(player, soundName);
+            }, null);
         }
 
         return true;
