@@ -16,16 +16,16 @@ public class NightVisionListener implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
-        // PlayerRespawnEvent fires on the player's entity thread — no scheduler needed
-        if (NightVisionManager.isEnabled(e.getPlayer())) {
-            NightVisionManager.enable(e.getPlayer());
-        }
+        var player = e.getPlayer();
+        player.getScheduler().runDelayed(plugin, t -> {
+            if (NightVisionManager.isEnabled(player)) {
+                NightVisionManager.enable(player);
+            }
+        }, null, 1L);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        // PlayerJoinEvent fires on global-region thread —
-        // PDC read (isEnabled) and addPotionEffect (enable) are entity ops
         var player = e.getPlayer();
         player.getScheduler().run(plugin, t -> {
             if (NightVisionManager.isEnabled(player)) {

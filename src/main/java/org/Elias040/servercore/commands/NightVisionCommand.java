@@ -31,11 +31,15 @@ public class NightVisionCommand implements CommandExecutor {
             return true;
         }
 
-        boolean enabled = NightVisionManager.toggle(p);
-        String key = enabled ? "nightvision-enabled" : "nightvision-disabled";
+        var enabledMsg  = plugin.messages().component("nightvision-enabled",  Map.of());
+        var disabledMsg = plugin.messages().component("nightvision-disabled", Map.of());
 
-        p.sendMessage(plugin.messages().component(key, Map.of()));
-        p.sendActionBar(plugin.messages().component(key, Map.of()));
+        p.getScheduler().run(plugin, t -> {
+            boolean enabled = NightVisionManager.toggle(p);
+            var msg = enabled ? enabledMsg : disabledMsg;
+            p.sendMessage(msg);
+            p.sendActionBar(msg);
+        }, null);
 
         return true;
     }

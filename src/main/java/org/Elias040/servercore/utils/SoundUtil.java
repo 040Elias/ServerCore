@@ -15,7 +15,7 @@ public final class SoundUtil {
         Sound sound = parseSound(soundName);
         if (sound == null) return;
 
-        player.playSound(player.getLocation(), sound, 1f, 1f);
+        player.playSound(player, sound, 1f, 1f);
     }
 
     public static void playError(JavaPlugin plugin, Player player) {

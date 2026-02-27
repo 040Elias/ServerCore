@@ -21,7 +21,7 @@ public final class MsgSession {
     public static void remove(UUID uuid) {
         UUID partner = lastPartner.remove(uuid);
         if (partner != null) {
-            lastPartner.remove(partner);
+            lastPartner.remove(partner, uuid);
         }
     }
 }

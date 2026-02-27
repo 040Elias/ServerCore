@@ -72,6 +72,12 @@ public class Main extends JavaPlugin {
         if (executor instanceof TabCompleter tc) cmd.setTabCompleter(tc);
     }
 
+    @Override
+    public void onDisable() {
+        if (spawnManager != null) spawnManager.shutdown();
+        org.Elias040.servercore.invsee.InvSeeSessions.clear();
+    }
+
     public MessageManager messages() { return messageManager; }
     public SpawnManager spawns() { return spawnManager; }
 }

@@ -72,7 +72,6 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         int delaySeconds = ConfigUtil.getInt(plugin, "spawn.teleport-delay-seconds", 3);
         Location target = targetOpt.get();
 
-        lastUseMillis.put(p.getUniqueId(), System.currentTimeMillis());
         teleporting.put(p.getUniqueId(), true);
 
         startCountdownTeleport(p, spawnName, target, delaySeconds);
@@ -134,9 +133,10 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
     private void doTeleport(Player player, String spawnName, Location target) {
         player.getScheduler().run(plugin, (task) -> {
             player.teleportAsync(target).thenRun(() ->
-                    player.getScheduler().run(plugin, t ->
-                                    player.sendMessage(plugin.messages().component("spawn-teleport-success", Map.of("spawn_name", spawnName)))
-                            , null)
+                    player.getScheduler().run(plugin, t -> {
+                        lastUseMillis.put(player.getUniqueId(), System.currentTimeMillis());
+                        player.sendMessage(plugin.messages().component("spawn-teleport-success", Map.of("spawn_name", spawnName)));
+                    }, null)
             );
         }, null);
     }

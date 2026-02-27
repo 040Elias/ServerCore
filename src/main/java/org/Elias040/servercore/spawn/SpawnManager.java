@@ -12,12 +12,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class SpawnManager {
 
     private final JavaPlugin plugin;
     private final File file;
     private YamlConfiguration cfg;
+
+    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "ServerCore-SpawnIO");
+        t.setDaemon(true);
+        return t;
+    });
 
     public SpawnManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -38,10 +47,26 @@ public class SpawnManager {
     }
 
     public void save() {
+        String yaml = cfg.saveToString();
+
+        ioExecutor.submit(() -> {
+            try (java.io.FileWriter fw = new java.io.FileWriter(file, java.nio.charset.StandardCharsets.UTF_8)) {
+                fw.write(yaml);
+            } catch (IOException e) {
+                plugin.getLogger().severe("Failed to save data/spawns.yml: " + e.getMessage());
+            }
+        });
+    }
+
+    /** Call from plugin onDisable() to flush any pending write before the JVM exits. */
+    public void shutdown() {
+        ioExecutor.shutdown();
         try {
-            cfg.save(file);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save data/spawns.yml: " + e.getMessage());
+            if (!ioExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                plugin.getLogger().warning("SpawnManager IO executor did not terminate in time.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

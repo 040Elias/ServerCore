@@ -57,7 +57,6 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
 
         String message = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
 
-        // Pre-build both components — Component is immutable, safe across threads
         Component senderMsg = plugin.messages().component("msg-sender", Map.of(
                 "receiver", target.getName(),
                 "message", message
@@ -67,10 +66,8 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
                 "message", message
         ));
 
-        // Sender is already on their own entity thread
         p.sendMessage(senderMsg);
 
-        // Target may be in a different region — schedule on their entity thread
         target.getScheduler().run(plugin, t -> target.sendMessage(receiverMsg), null);
 
         MsgSession.set(p.getUniqueId(), target.getUniqueId());

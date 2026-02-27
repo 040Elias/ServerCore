@@ -27,7 +27,7 @@ public class DelSpawnCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!p.hasPermission("servercore.spawn.setspawn")) {
+        if (!p.hasPermission("servercore.spawn.delspawn")) {
             p.sendMessage(plugin.messages().component("no-permission", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;

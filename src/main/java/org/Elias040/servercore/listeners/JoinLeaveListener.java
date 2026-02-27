@@ -1,5 +1,6 @@
 package org.Elias040.servercore.listeners;
 
+import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Map;
 
 public class JoinLeaveListener implements Listener {
-
 
     private final Main plugin;
 
@@ -26,15 +26,13 @@ public class JoinLeaveListener implements Listener {
 
         if (player.hasPermission("servercore.join.silent")) return;
 
-        if (!player.hasPlayedBefore()) {
-            plugin.getServer().sendMessage(plugin.messages().component("first-join", Map.of(
-                    "player", player.getName()
-            )));
-        } else {
-            plugin.getServer().sendMessage(plugin.messages().component("join", Map.of(
-                    "player", player.getName()
-            )));
-        }
+        // Pre-build the component before scheduling — Component is immutable and thread-safe.
+        Component msg = player.hasPlayedBefore()
+                ? plugin.messages().component("join",       Map.of("player", player.getName()))
+                : plugin.messages().component("first-join", Map.of("player", player.getName()));
+
+        plugin.getServer().getGlobalRegionScheduler().execute(plugin,
+                () -> plugin.getServer().sendMessage(msg));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -44,8 +42,9 @@ public class JoinLeaveListener implements Listener {
 
         if (player.hasPermission("servercore.join.silent")) return;
 
-        plugin.getServer().sendMessage(plugin.messages().component("leave", Map.of(
-                "player", player.getName()
-        )));
+        Component msg = plugin.messages().component("leave", Map.of("player", player.getName()));
+
+        plugin.getServer().getGlobalRegionScheduler().execute(plugin,
+                () -> plugin.getServer().sendMessage(msg));
     }
 }

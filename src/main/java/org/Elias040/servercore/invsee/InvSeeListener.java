@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryView;
 
 public class InvSeeListener implements Listener {
@@ -43,5 +44,10 @@ public class InvSeeListener implements Listener {
         if (e.getView().getTopInventory() != session.gui()) return;
 
         InvSeeSessions.close(viewer.getUniqueId());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        InvSeeSessions.close(e.getPlayer().getUniqueId());
     }
 }

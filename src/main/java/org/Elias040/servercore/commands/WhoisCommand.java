@@ -61,42 +61,48 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
         }
 
         boolean sensitive = sender.hasPermission("servercore.whois.sensitive");
+        String targetName = target.getName();
+        String targetUuid = target.getUniqueId().toString();
 
-        List<Component> lines = new ArrayList<>();
+        target.getScheduler().run(plugin, t -> {
+            List<Component> lines = new ArrayList<>();
 
-        lines.add(TextUtil.toComponent("&#38c1fc&l--- Whois of " + target.getName() + " ---"));
-        lines.add(Component.empty());
-        lines.add(line("UUID",       target.getUniqueId().toString()));
-        lines.add(line("First Join", DATE_FORMAT.format(Instant.ofEpochMilli(target.getFirstPlayed()))));
-
-        lines.add(line("Last Seen", DATE_FORMAT.format(Instant.ofEpochMilli(target.getLastSeen()))));
-        lines.add(line("Playtime",   formatPlaytime(target.getStatistic(Statistic.PLAY_ONE_MINUTE))));
-        lines.add(line("Ping",       target.getPing() + "ms"));
-
-        if (sensitive) {
+            lines.add(TextUtil.toComponent("&#38c1fc&l--- Whois of " + targetName + " ---"));
             lines.add(Component.empty());
+            lines.add(line("UUID",       targetUuid));
+            lines.add(line("First Join", DATE_FORMAT.format(Instant.ofEpochMilli(target.getFirstPlayed()))));
+            lines.add(line("Last Seen",  DATE_FORMAT.format(Instant.ofEpochMilli(target.getLastSeen()))));
+            lines.add(line("Playtime",   formatPlaytime(target.getStatistic(Statistic.PLAY_ONE_MINUTE))));
+            lines.add(line("Ping",       target.getPing() + "ms"));
 
-            String ip = target.getAddress() != null
-                    ? target.getAddress().getAddress().getHostAddress()
-                    : "unknown";
-            String client = target.getClientBrandName() != null
-                    ? target.getClientBrandName()
-                    : "unknown";
+            if (sensitive) {
+                lines.add(Component.empty());
 
-            lines.add(line("IP",       ip));
-            lines.add(line("Client",   client));
-            boolean frozen = FreezeManager.isFrozen(target);
-            lines.add(line("Frozen",   frozen ? "&ctrue" : "&afalse"));
-            lines.add(line("Gamemode", capitalize(target.getGameMode().name())));
-            lines.add(line("Position", formatLocation(target)));
-        }
+                String ip = target.getAddress() != null
+                        ? target.getAddress().getAddress().getHostAddress()
+                        : "unknown";
+                String client = target.getClientBrandName() != null
+                        ? target.getClientBrandName()
+                        : "unknown";
 
-        lines.add(Component.empty());
-        lines.add(TextUtil.toComponent("&#38c1fc&l---"));
+                lines.add(line("IP",       ip));
+                lines.add(line("Client",   client));
+                lines.add(line("Frozen",   FreezeManager.isFrozen(target) ? "&ctrue" : "&afalse"));
+                lines.add(line("Gamemode", capitalize(target.getGameMode().name())));
+                lines.add(line("Position", formatLocation(target)));
+            }
 
-        for (Component line : lines) {
-            sender.sendMessage(line);
-        }
+            lines.add(Component.empty());
+            lines.add(TextUtil.toComponent("&#38c1fc&l---"));
+
+            if (sender instanceof Player sp) {
+                sp.getScheduler().run(plugin, t2 -> {
+                    for (Component c : lines) sp.sendMessage(c);
+                }, null);
+            } else {
+                for (Component c : lines) sender.sendMessage(c);
+            }
+        }, null);
 
         return true;
     }

@@ -64,17 +64,14 @@ public class FreezeCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // Pre-build immutable objects before scheduling
         Title freezeTitle = listener.buildFreezeTitle();
         String targetName = target.getName();
 
-        // PDC write and showTitle must run on target's entity thread
         target.getScheduler().run(plugin, t -> {
             FreezeManager.freeze(target);
             target.showTitle(freezeTitle);
         }, null);
 
-        // Confirmation to sender — sender is already on their own thread
         if (sender instanceof Player p) {
             p.sendMessage(plugin.messages().component("freeze-frozen", Map.of("player", targetName)));
         } else {

@@ -24,4 +24,8 @@ public final class InvSeeSessions {
     public static void close(UUID viewer) {
         sessions.remove(viewer);
     }
+
+    public static void clear() {
+        sessions.clear();
+    }
 }

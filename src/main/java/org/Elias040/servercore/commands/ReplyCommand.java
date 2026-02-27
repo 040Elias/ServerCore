@@ -58,7 +58,6 @@ public class ReplyCommand implements CommandExecutor {
 
         String message = String.join(" ", args);
 
-        // Pre-build both components — Component is immutable, safe across threads
         Component senderMsg = plugin.messages().component("msg-sender", Map.of(
                 "receiver", target.getName(),
                 "message", message
@@ -68,10 +67,8 @@ public class ReplyCommand implements CommandExecutor {
                 "message", message
         ));
 
-        // Sender is already on their own entity thread
         p.sendMessage(senderMsg);
 
-        // Target may be in a different region — schedule on their entity thread
         target.getScheduler().run(plugin, t -> target.sendMessage(receiverMsg), null);
 
         MsgSession.set(p.getUniqueId(), target.getUniqueId());
