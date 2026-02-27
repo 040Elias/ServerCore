@@ -1,5 +1,5 @@
 name: ServerCore
-version: '1.8'
+version: '1.9'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
@@ -49,6 +49,13 @@ commands:
     usage: /reply <message>
     permission: servercore.msg
     aliases: [r]
+  discord:
+    usage: /discord
+    permission: servercore.discord
+    default: true
+  live:
+    usage: /live <url>
+    permission: servercore.live
   servercore:
     usage: /servercore reload
     permission: servercore.reload
@@ -86,5 +93,9 @@ permissions:
     default: false
   servercore.msg:
     default: true
+  servercore.discord:
+    default: true
+  servercore.live:
+    default: op
   servercore.reload:
     default: op

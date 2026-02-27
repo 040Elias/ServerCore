@@ -2,7 +2,9 @@ package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
 import org.Elias040.servercore.commands.DelSpawnCommand;
+import org.Elias040.servercore.commands.DiscordCommand;
 import org.Elias040.servercore.commands.FreezeCommand;
+import org.Elias040.servercore.commands.LiveCommand;
 import org.Elias040.servercore.commands.InvSeeCommand;
 import org.Elias040.servercore.commands.MsgCommand;
 import org.Elias040.servercore.commands.NightVisionCommand;
@@ -56,6 +58,9 @@ public class Main extends JavaPlugin {
         registerCommand("msg",         msgCommand);
         registerCommand("reply",       replyCommand);
         registerCommand("servercore",  new ReloadCommand(this));
+        LiveCommand liveCommand = new LiveCommand(this);
+        registerCommand("discord",     new DiscordCommand(this));
+        registerCommand("live",        liveCommand);
 
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);
         getServer().getPluginManager().registerEvents(new NightVisionListener(this), this);
@@ -63,6 +68,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         getServer().getPluginManager().registerEvents(new MsgQuitListener(), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.SpawnQuitListener(spawnCommand), this);
+        getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
     }
 
     private void registerCommand(String name, Object executor) {

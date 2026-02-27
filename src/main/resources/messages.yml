@@ -39,3 +39,6 @@ msg-receiver: "&#38c1fc%sender% &7-> &#38c1fcYOU: &f%message%"
 msg-self: "&cYou cannot message yourself."
 msg-no-reply: "&cYou have no one to talk to."
 msg-reply-offline: "&cThat player is no longer online."
+
+live-cooldown: "&cYou must wait &f%remaining% &cbefore using /live again."
+live-invalid-url: "&cPlease provide a valid URL starting with http:// or https://"

@@ -12,3 +12,20 @@ invsee:
 
 broadcast:
   sound: "BLOCK.NOTE_BLOCK.BELL"
+
+discord:
+  sound: "BLOCK.NOTE_BLOCK.PLING"
+  lines:
+    -  "&#38c1fcᴊᴏɪɴ ᴛʜᴇ Example ᴄᴏᴍᴍᴜɴɪᴛʏ"
+    -  "&#38c1fc&l•&r &f&ndiscord.gg/yourserver"
+
+live:
+  cooldown-minutes: 15
+  sound: "BLOCK.NOTE_BLOCK.BELL"
+  lines:
+    - ""
+    - "  &#38c1fc&l%player% is now live!"
+    - ""
+    - "  &7Watch the stream:"
+    - "  &f%link%"
+    - ""
