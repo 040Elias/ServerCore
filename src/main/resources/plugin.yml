@@ -1,11 +1,11 @@
 name: ServerCore
-version: '1.9'
+version: '2.0'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
 load: STARTUP
 authors: [040Elias]
-description: Work in Progress ServerCore Plugin
+description: A Folia Plugin with Core Features for a Server
 folia-supported: true
 
 commands:

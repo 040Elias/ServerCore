@@ -17,6 +17,7 @@ import org.Elias040.servercore.commands.UnfreezeCommand;
 import org.Elias040.servercore.commands.WhoisCommand;
 import org.Elias040.servercore.freeze.FreezeListener;
 import org.Elias040.servercore.invsee.InvSeeListener;
+import org.Elias040.servercore.listeners.DeathListener;
 import org.Elias040.servercore.listeners.JoinLeaveListener;
 import org.Elias040.servercore.listeners.MsgQuitListener;
 import org.Elias040.servercore.nightvision.NightVisionListener;
@@ -69,6 +70,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MsgQuitListener(), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.SpawnQuitListener(spawnCommand), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
+        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
     }
 
     private void registerCommand(String name, Object executor) {

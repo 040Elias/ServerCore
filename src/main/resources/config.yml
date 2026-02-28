@@ -29,3 +29,9 @@ live:
     - "  &7Watch the stream:"
     - "  &f%link%"
     - ""
+
+death:
+  # Leave empty to disable
+  prefix: "&#ff0000☠ "
+  message-color: "&#ff0000"
+  suffix: "&#ff0000."
