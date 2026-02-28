@@ -1,0 +1,35 @@
+ServerCore License Agreement
+Copyright (c) 2026 Elias
+
+Permission is hereby granted to any person obtaining a copy
+of this software and associated documentation files (the "Software"),
+to use, modify, and run the Software for private or internal server use,
+subject to the following conditions:
+
+1. Commercial Use
+The Software may NOT be used for any commercial purposes.
+This includes but is not limited to:
+- Selling the Software
+- Selling modified versions of the Software
+- Including the Software in paid products
+
+2. Redistribution
+You may NOT distribute the Software or any modified version of it.
+This includes:
+- Uploading the Software to any plugin/mod website
+- Sharing compiled versions (.jar)
+- Sharing modified source code publicly
+- Repackaging or rebranding the Software
+
+3. Modification
+You are allowed to modify the Software for private use only.
+Modified versions may not be distributed.
+
+4. Attribution
+This copyright notice must be included in all copies or
+substantial portions of the Software.
+
+5. Liability
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+Violation of these terms will result in termination of the license.
