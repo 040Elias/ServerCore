@@ -11,7 +11,7 @@ import org.Elias040.servercore.commands.MediaCommand;
 import org.Elias040.servercore.commands.MsgCommand;
 import org.Elias040.servercore.commands.NightVisionCommand;
 import org.Elias040.servercore.commands.PingCommand;
-import org.Elias040.servercore.commands.ReloadCommand;
+import org.Elias040.servercore.commands.ServerCoreCommand;
 import org.Elias040.servercore.commands.ReplyCommand;
 import org.Elias040.servercore.commands.SetSpawnCommand;
 import org.Elias040.servercore.commands.SpawnCommand;
@@ -62,12 +62,11 @@ public class Main extends JavaPlugin {
         registerCommand("whois",       new WhoisCommand(this));
         registerCommand("msg",         msgCommand);
         registerCommand("reply",       replyCommand);
-        registerCommand("servercore",  new ReloadCommand(this));
+        registerCommand("servercore",  new ServerCoreCommand(this));
         LiveCommand liveCommand = new LiveCommand(this);
         registerCommand("discord",     new DiscordCommand(this));
         registerCommand("live",        liveCommand);
 
-        // Gamemode aliases
         GamemodeCommand gmCmd = new GamemodeCommand(this, null);
         registerCommand("gm",   gmCmd);
         registerCommand("gmc",  new GamemodeCommand(this, GameMode.CREATIVE));
@@ -75,7 +74,6 @@ public class Main extends JavaPlugin {
         registerCommand("gma",  new GamemodeCommand(this, GameMode.ADVENTURE));
         registerCommand("gmsp", new GamemodeCommand(this, GameMode.SPECTATOR));
 
-        // Media GUI
         registerCommand("media", new MediaCommand(this));
 
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);

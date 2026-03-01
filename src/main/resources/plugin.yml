@@ -56,8 +56,9 @@ commands:
     usage: /live <url>
     permission: servercore.live
   servercore:
-    usage: /servercore reload
-    permission: servercore.reload
+    usage: /servercore <reload|version>
+    description: Main ServerCore command
+    permission: servercore.use
   gm:
     usage: /gm <mode> [player]
     permission: servercore.gamemode
@@ -137,4 +138,6 @@ permissions:
   servercore.media:
     default: true
   servercore.reload:
+    default: op
+  servercore.version:
     default: op
