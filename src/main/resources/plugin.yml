@@ -1,5 +1,5 @@
 name: ServerCore
-version: '2.0'
+version: '${version}'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
