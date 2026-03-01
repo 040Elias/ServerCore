@@ -35,3 +35,33 @@ death:
   prefix: "&#ff0000☠ "
   message-color: "&#ff0000"
   suffix: "&#ff0000."
+
+media:
+  title: "&7ᴍᴇᴅɪᴀ ʀᴀɴᴋ"
+  filler:
+    enabled: false
+    material: "GRAY_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+  item:
+    material: "LEATHER_HELMET"
+    name: "&#f73f9b📽ᴍᴇᴅɪᴀ ʀᴀɴᴋ"
+    lore:
+      - ""
+      - "&#f73f9bRequirements: (only one needed)"
+      - "&#f73f9b-&f 25 average viewers on a Stream"
+      - "&#f73f9b-&f 100 average viewers on a TikTok Stream"
+      - "&#f73f9b-&f 5k Views on a Youtube Video"
+      - "&#f73f9b-&f 50k Views on a TikTok"
+      - "&#f73f9b-&f 50k Views on a Youtube Short"
+      - "&#f73f9b-&f 50k Views on a Instagram Reel"
+      - ""
+      - ""
+      - "&#f73f9bReminders:"
+      - "&8-&7 Must have IP on screen"
+      - "&8-&7 Must be from the new season"
+      - "&8-&7 Create ticket in discord for the rank"
+      - "&8-&7 It lasts 90 days and has all top rank perks"
+    leather-color: "#91255b"
+    command: "discord"
+    runAsConsole: false

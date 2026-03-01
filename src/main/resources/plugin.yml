@@ -3,7 +3,6 @@ version: '${version}'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
-load: STARTUP
 authors: [040Elias]
 description: A Folia Plugin with Core Features for a Server
 folia-supported: true
@@ -59,6 +58,26 @@ commands:
   servercore:
     usage: /servercore reload
     permission: servercore.reload
+  gm:
+    usage: /gm <mode> [player]
+    permission: servercore.gamemode
+  gmc:
+    usage: /gmc [player]
+    permission: servercore.gamemode
+    aliases: []
+  gms:
+    usage: /gms [player]
+    permission: servercore.gamemode
+  gma:
+    usage: /gma [player]
+    permission: servercore.gamemode
+  gmsp:
+    usage: /gmsp [player]
+    permission: servercore.gamemode
+  media:
+    usage: /media
+    permission: servercore.media
+    default: true
 
 permissions:
   servercore.spawn.setspawn:
@@ -97,5 +116,25 @@ permissions:
     default: true
   servercore.live:
     default: op
+  servercore.gamemode:
+    description: "Change own gamemode (all modes)"
+    default: op
+    children:
+      servercore.gamemode.survival: true
+      servercore.gamemode.creative: true
+      servercore.gamemode.adventure: true
+      servercore.gamemode.spectator: true
+  servercore.gamemode.survival:
+    default: op
+  servercore.gamemode.creative:
+    default: op
+  servercore.gamemode.adventure:
+    default: op
+  servercore.gamemode.spectator:
+    default: op
+  servercore.gamemode.other:
+    default: op
+  servercore.media:
+    default: true
   servercore.reload:
     default: op

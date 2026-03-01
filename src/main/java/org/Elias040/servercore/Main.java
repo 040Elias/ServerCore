@@ -4,8 +4,10 @@ import org.Elias040.servercore.commands.BroadcastCommand;
 import org.Elias040.servercore.commands.DelSpawnCommand;
 import org.Elias040.servercore.commands.DiscordCommand;
 import org.Elias040.servercore.commands.FreezeCommand;
-import org.Elias040.servercore.commands.LiveCommand;
+import org.Elias040.servercore.commands.GamemodeCommand;
 import org.Elias040.servercore.commands.InvSeeCommand;
+import org.Elias040.servercore.commands.LiveCommand;
+import org.Elias040.servercore.commands.MediaCommand;
 import org.Elias040.servercore.commands.MsgCommand;
 import org.Elias040.servercore.commands.NightVisionCommand;
 import org.Elias040.servercore.commands.PingCommand;
@@ -20,9 +22,11 @@ import org.Elias040.servercore.invsee.InvSeeListener;
 import org.Elias040.servercore.listeners.DeathListener;
 import org.Elias040.servercore.listeners.JoinLeaveListener;
 import org.Elias040.servercore.listeners.MsgQuitListener;
+import org.Elias040.servercore.media.MediaListener;
 import org.Elias040.servercore.nightvision.NightVisionListener;
 import org.Elias040.servercore.spawn.SpawnManager;
 import org.Elias040.servercore.utils.MessageManager;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -63,6 +67,17 @@ public class Main extends JavaPlugin {
         registerCommand("discord",     new DiscordCommand(this));
         registerCommand("live",        liveCommand);
 
+        // Gamemode aliases
+        GamemodeCommand gmCmd = new GamemodeCommand(this, null);
+        registerCommand("gm",   gmCmd);
+        registerCommand("gmc",  new GamemodeCommand(this, GameMode.CREATIVE));
+        registerCommand("gms",  new GamemodeCommand(this, GameMode.SURVIVAL));
+        registerCommand("gma",  new GamemodeCommand(this, GameMode.ADVENTURE));
+        registerCommand("gmsp", new GamemodeCommand(this, GameMode.SPECTATOR));
+
+        // Media GUI
+        registerCommand("media", new MediaCommand(this));
+
         getServer().getPluginManager().registerEvents(new InvSeeListener(), this);
         getServer().getPluginManager().registerEvents(new NightVisionListener(this), this);
         getServer().getPluginManager().registerEvents(freezeListener, this);
@@ -71,6 +86,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.SpawnQuitListener(spawnCommand), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new MediaListener(this), this);
     }
 
     private void registerCommand(String name, Object executor) {
