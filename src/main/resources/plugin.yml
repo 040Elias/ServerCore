@@ -137,7 +137,6 @@ permissions:
     default: op
   servercore.media:
     default: true
-  servercore.reload:
-    default: op
-  servercore.version:
+  servercore.use:
+    description: "Access /servercore reload and version"
     default: op

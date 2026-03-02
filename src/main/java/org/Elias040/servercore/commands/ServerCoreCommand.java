@@ -7,25 +7,21 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-public final class ServerCoreCommand implements CommandExecutor, TabCompleter {
+public class ServerCoreCommand implements CommandExecutor, TabCompleter {
 
     private static final String GITHUB_URL = "https://github.com/040Elias/ServerCore";
     private static final TextColor ACCENT = TextColor.fromHexString("#38c1fc");
-
-    private static final SubCommand RELOAD  = new SubCommand("reload",  "servercore.reload");
-    private static final SubCommand VERSION = new SubCommand("version", "servercore.version");
-    private static final List<SubCommand> SUBS = List.of(RELOAD, VERSION);
 
     private final Main plugin;
 
@@ -34,96 +30,76 @@ public final class ServerCoreCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 0) {
-            sendUsage(sender);
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length == 0 || (!args[0].equalsIgnoreCase("reload") && !args[0].equalsIgnoreCase("version"))) {
+            sender.sendMessage(TextUtil.toComponent("&cUsage: /servercore <reload|version>"));
+            if (sender instanceof Player p) SoundUtil.playError(plugin, p);
             return true;
         }
 
-        final String sub = args[0].toLowerCase(Locale.ROOT);
+        if (!sender.hasPermission("servercore.use")) {
+            if (sender instanceof Player p) {
+                p.sendMessage(plugin.messages().component("no-permission", Map.of()));
+                SoundUtil.playError(plugin, p);
+            } else {
+                sender.sendMessage(plugin.messages().component("no-permission", Map.of()));
+            }
+            return true;
+        }
 
-        if (sub.equals(RELOAD.name())) {
-            if (!has(sender, RELOAD)) return true;
+        if (args[0].equalsIgnoreCase("reload")) {
             plugin.reloadConfig();
             plugin.messages().loadMessages();
-            sender.sendMessage(success("reloaded", "the configs."));
+            sender.sendMessage(TextUtil.toComponent("&7Successfully &#38c1fcreloaded&7 the configs."));
             return true;
         }
 
-        if (sub.equals(VERSION.name())) {
-            if (!has(sender, VERSION)) return true;
-            sendVersion(sender);
-            return true;
-        }
-
-        sendUnknown(sender);
+        sendVersion(sender);
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length != 1) return List.of();
-
-        final String input = args[0].toLowerCase(Locale.ROOT);
-        return SUBS.stream()
-                .filter(s -> s.name().startsWith(input))
-                .filter(s -> sender.hasPermission(s.permission()))
-                .map(SubCommand::name)
-                .collect(Collectors.toList());
-    }
-
-    private boolean has(CommandSender sender, SubCommand sub) {
-        if (sender.hasPermission(sub.permission())) return true;
-
-        sender.sendMessage(TextUtil.toComponent("&cYou don't have permission."));
-        return false;
-    }
-
-    private void sendUsage(CommandSender sender) {
-        sender.sendMessage(TextUtil.toComponent("&cUsage: /servercore <reload|version>"));
-    }
-
-    private void sendUnknown(CommandSender sender) {
-        sender.sendMessage(TextUtil.toComponent("&cUnknown subcommand. Usage: /servercore <reload|version>"));
-    }
-
-    private Component success(String highlightWord, String rest) {
-        return Component.text("Successfully ", NamedTextColor.GRAY)
-                .append(Component.text(highlightWord, ACCENT))
-                .append(Component.space())
-                .append(Component.text(rest, NamedTextColor.GRAY));
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 1 && sender.hasPermission("servercore.use")) {
+            return List.of("reload", "version").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+                    .toList();
+        }
+        return List.of();
     }
 
     private void sendVersion(CommandSender sender) {
-        final String pluginVersion = plugin.getPluginMeta().getVersion();
-        final String mcVersion = plugin.getServer().getMinecraftVersion();
-        final String software = plugin.getServer().getName();
+        String version   = plugin.getPluginMeta().getVersion();
+        String mcVersion = plugin.getServer().getMinecraftVersion();
+        String software  = plugin.getServer().getName();
 
-        final Component divider = Component.text("  --------------------------------", NamedTextColor.DARK_GRAY);
+        Component accent  = Component.text("■ ", ACCENT);
+        Component divider = Component.text("  ─────────────────────────", NamedTextColor.DARK_GRAY);
 
-        final Component title = Component.text("  ")
+        Component title = Component.text("  ")
                 .append(Component.text("ServerCore ", ACCENT).decorate(TextDecoration.BOLD))
-                .append(Component.text("v" + pluginVersion, ACCENT).decoration(TextDecoration.BOLD, false));
+                .append(Component.text("v" + version, NamedTextColor.DARK_GRAY).decoration(TextDecoration.BOLD, false));
 
-        final Component softwareLine = Component.text("  ")
-                .append(Component.text("Software", NamedTextColor.GRAY))
-                .append(Component.text(" » ", NamedTextColor.DARK_GRAY))
-                .append(Component.text(software, NamedTextColor.WHITE))
-                .append(Component.text("  MC " + mcVersion, NamedTextColor.DARK_GRAY));
+        Component softwareLine = Component.text("  ").append(accent)
+                .append(Component.text("Software  ", NamedTextColor.GRAY))
+                .append(Component.text(software + " ", NamedTextColor.WHITE))
+                .append(Component.text("(" + mcVersion + ")", NamedTextColor.DARK_GRAY));
 
-        final Component githubLine = Component.text("  ")
-                .append(Component.text("GitHub", NamedTextColor.GRAY))
-                .append(Component.text(" » ", NamedTextColor.DARK_GRAY))
-                .append(Component.text(GITHUB_URL, ACCENT)
+        Component githubLine = Component.text("  ").append(accent)
+                .append(Component.text("GitHub    ", NamedTextColor.GRAY))
+                .append(Component.text("github.com/040Elias/ServerCore", ACCENT)
                         .clickEvent(ClickEvent.openUrl(GITHUB_URL))
-                        .hoverEvent(HoverEvent.showText(Component.text("Click to open", NamedTextColor.GRAY))));
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to open", NamedTextColor.GRAY)
+                                .append(Component.newline())
+                                .append(Component.text(GITHUB_URL, NamedTextColor.DARK_GRAY)))));
 
+        sender.sendMessage(Component.empty());
         sender.sendMessage(divider);
         sender.sendMessage(title);
+        sender.sendMessage(divider);
         sender.sendMessage(softwareLine);
         sender.sendMessage(githubLine);
         sender.sendMessage(divider);
+        sender.sendMessage(Component.empty());
     }
-
-    private record SubCommand(String name, String permission) {}
 }
