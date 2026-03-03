@@ -1,4 +1,4 @@
-package org.Elias040.servercore.features.spawn;
+package org.Elias040.servercore.features.warp;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,21 +16,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SpawnManager {
+public class WarpManager {
 
     private final JavaPlugin plugin;
     private final File file;
     private YamlConfiguration cfg;
 
     private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "ServerCore-SpawnIO");
+        Thread t = new Thread(r, "ServerCore-WarpIO");
         t.setDaemon(true);
         return t;
     });
 
-    public SpawnManager(JavaPlugin plugin) {
+    public WarpManager(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "data/spawns.yml");
+        this.file = new File(plugin.getDataFolder(), "data/warps.yml");
         load();
     }
 
@@ -40,7 +40,7 @@ public class SpawnManager {
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                plugin.getLogger().severe("Failed to create data/spawns.yml: " + e.getMessage());
+                plugin.getLogger().severe("Failed to create data/warps.yml: " + e.getMessage());
             }
         }
         this.cfg = YamlConfiguration.loadConfiguration(file);
@@ -52,7 +52,7 @@ public class SpawnManager {
             try (java.io.FileWriter fw = new java.io.FileWriter(file, java.nio.charset.StandardCharsets.UTF_8)) {
                 fw.write(yaml);
             } catch (IOException e) {
-                plugin.getLogger().severe("Failed to save data/spawns.yml: " + e.getMessage());
+                plugin.getLogger().severe("Failed to save data/warps.yml: " + e.getMessage());
             }
         });
     }
@@ -61,7 +61,7 @@ public class SpawnManager {
         ioExecutor.shutdown();
         try {
             if (!ioExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                plugin.getLogger().warning("SpawnManager IO executor did not terminate in time.");
+                plugin.getLogger().warning("WarpManager IO executor did not terminate in time.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -69,24 +69,23 @@ public class SpawnManager {
     }
 
     public boolean exists(String name) {
-        return cfg.contains("spawns." + normalize(name) + ".world");
+        return cfg.contains("warps." + normalize(name) + ".world");
     }
 
-    /** Returns lowercase YAML keys — used internally for lookups. */
-    public List<String> getSpawnNames() {
-        var section = cfg.getConfigurationSection("spawns");
+    public List<String> getWarpNames() {
+        var section = cfg.getConfigurationSection("warps");
         if (section == null) return Collections.emptyList();
         return List.copyOf(section.getKeys(false));
     }
 
     public List<String> getDisplayNames() {
-        return getSpawnNames().stream()
-                .map(key -> cfg.getString("spawns." + key + ".name", key))
+        return getWarpNames().stream()
+                .map(key -> cfg.getString("warps." + key + ".name", key))
                 .toList();
     }
 
-    public void setSpawn(String name, Location loc) {
-        String key = "spawns." + normalize(name);
+    public void setWarp(String name, Location loc) {
+        String key = "warps." + normalize(name);
         cfg.set(key + ".name",  name);
         cfg.set(key + ".world", loc.getWorld().getName());
         cfg.set(key + ".x",     loc.getX());
@@ -97,16 +96,16 @@ public class SpawnManager {
         save();
     }
 
-    public boolean deleteSpawn(String name) {
-        String key = "spawns." + normalize(name);
+    public boolean deleteWarp(String name) {
+        String key = "warps." + normalize(name);
         if (!cfg.contains(key)) return false;
         cfg.set(key, null);
         save();
         return true;
     }
 
-    public Optional<Location> getSpawn(String name) {
-        String key = "spawns." + normalize(name);
+    public Optional<Location> getWarp(String name) {
+        String key = "warps." + normalize(name);
         String worldName = cfg.getString(key + ".world");
         if (worldName == null || worldName.isBlank()) return Optional.empty();
 
@@ -123,7 +122,7 @@ public class SpawnManager {
     }
 
     public String getDisplayName(String name) {
-        return cfg.getString("spawns." + normalize(name) + ".name", name);
+        return cfg.getString("warps." + normalize(name) + ".name", name);
     }
 
     private String normalize(String name) {

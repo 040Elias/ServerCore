@@ -1,4 +1,4 @@
-package org.Elias040.servercore.features.spawn;
+package org.Elias040.servercore.features.warp;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.SoundUtil;
@@ -12,11 +12,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public class DelSpawnCommand implements CommandExecutor, TabCompleter {
+public class DelWarpCommand implements CommandExecutor, TabCompleter {
 
     private final Main plugin;
 
-    public DelSpawnCommand(Main plugin) {
+    public DelWarpCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -27,35 +27,35 @@ public class DelSpawnCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!p.hasPermission("servercore.spawn.delspawn")) {
+        if (!p.hasPermission("servercore.warp.delwarp")) {
             p.sendMessage(plugin.messages().component("no-permission", Map.of()));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
         if (args.length != 1) {
-            p.sendMessage(TextUtil.toComponent("&cUsage: /delspawn <n>"));
+            p.sendMessage(TextUtil.toComponent("&cUsage: /delwarp <n>"));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
         String name = args[0];
-        String displayName = plugin.spawns().getDisplayName(name);
+        String displayName = plugin.warps().getDisplayName(name);
 
-        if (!plugin.spawns().deleteSpawn(name)) {
-            p.sendMessage(plugin.messages().component("spawn-not-found", Map.of("spawn_name", displayName)));
+        if (!plugin.warps().deleteWarp(name)) {
+            p.sendMessage(plugin.messages().component("warp-not-found", Map.of("warp_name", displayName)));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        p.sendMessage(plugin.messages().component("delspawn-success", Map.of("spawn_name", displayName)));
+        p.sendMessage(plugin.messages().component("delwarp-success", Map.of("warp_name", displayName)));
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 1) {
-            return plugin.spawns().getDisplayNames().stream()
+            return plugin.warps().getDisplayNames().stream()
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .toList();
         }

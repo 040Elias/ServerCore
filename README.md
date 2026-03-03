@@ -37,6 +37,9 @@ ServerCore is designed for **performance-oriented Folia networks** that prefer m
 ### Spawns
 Named spawn points with configurable teleport delay, movement cancellation, and per-player cooldowns. Multiple spawns supported out of the box — `/spawn lobby`, `/spawn pvp`, etc.
 
+### Warps
+Named warp points with the same UX as spawns — configurable teleport delay, movement cancellation, per-player cooldowns, and action bar countdown. Warps are stored separately in `data/warps.yml` and can be created, overwritten, or deleted at runtime. `/warp` with no argument falls back to the `warp.default-warp` config key.
+
 ### Chat Moderation
 Five independent, toggleable checks — each with its own bypass permission:
 
@@ -99,9 +102,12 @@ The distinction matters: claiming "Folia compatible" is easy. Correctly separati
 
 | Command                      | Description                       | Permission | Default |
 |------------------------------|-----------------------------------|------------|---------|
-| `/spawn [name]`              | Teleport to a spawn               | `servercore.spawn.use` | everyone |
+| `/spawn <n>`                 | Teleport to a spawn               | `servercore.spawn.use` | everyone |
 | `/setspawn <n>`              | Create a named spawn              | `servercore.spawn.setspawn` | op |
 | `/delspawn <n>`              | Delete a named spawn              | `servercore.spawn.delspawn` | op |
+| `/warp <n>`                  | Teleport to a warp                | `servercore.warp.use` | everyone |
+| `/setwarp <n>`               | Create or overwrite a named warp  | `servercore.warp.setwarp` | op |
+| `/delwarp <n>`               | Delete a named warp               | `servercore.warp.delwarp` | op |
 | `/invsee <player>`           | Read-only inventory snapshot      | `servercore.invsee` | op |
 | `/broadcast <message>`       | Broadcast title + chat message    | `servercore.broadcast` | op |
 | `/nightvision` (`/nv`)       | Toggle night vision               | `servercore.nightvision` | op |
@@ -191,39 +197,46 @@ moderation:
 ```yaml
 spawn:
   teleport-delay-seconds: 5
-  cooldown-seconds: 10
   teleporting-sound: "BLOCK.NOTE_BLOCK.PLING"
-  default-spawn: "1"
+```
+
+#### Warp
+```yaml
+warp:
+  teleport-delay-seconds: 5
+  teleporting-sound: "BLOCK.NOTE_BLOCK.PLING"
 ```
 
 #### Other
 ```yaml
 global:
   error-sound: "ENTITY.VILLAGER.NO"
+  teleport-success-sound: "ENTITY.PLAYER.LEVELUP"
+```
 
 broadcast:
-  sound: "BLOCK.NOTE_BLOCK.BELL"
+sound: "BLOCK.NOTE_BLOCK.BELL"
 
 discord:
-  sound: "BLOCK.NOTE_BLOCK.PLING"
-  lines:
-    - "&#38c1fcJoin our community"
-    - "https://discord.gg/yourserver"
+sound: "BLOCK.NOTE_BLOCK.PLING"
+lines:
+- "&#38c1fcJoin our community"
+- "https://discord.gg/yourserver"
 
 live:
-  cooldown-minutes: 15
-  sound: "BLOCK.NOTE_BLOCK.BELL"
-  lines:
-    - "  &#38c1fc&l%player% is now live!"
-    - "  &fWatch: %link%"
+cooldown-minutes: 15
+sound: "BLOCK.NOTE_BLOCK.BELL"
+lines:
+- "  &#38c1fc&l%player% is now live!"
+- "  &fWatch: %link%"
 
 death:
-  prefix: "&#ff0000☠ "
-  message-color: "&#ff0000"
-  suffix: "&#ff0000."
+prefix: "&#ff0000☠ "
+message-color: "&#ff0000"
+suffix: "&#ff0000."
 
 invsee:
-  title: "&fInvSee: &#38c1fc%target%"
+title: "&fInvSee: &#38c1fc%target%"
 ```
 
 ---
@@ -241,7 +254,13 @@ Supports `&` color codes and `&#RRGGBB` hex colors throughout.
 | `moderation-command-cooldown` | `%time%` (seconds) | Command cooldown feedback |
 | `spawn-teleport-success` | `%spawn_name%` | Teleport success |
 | `spawn-teleport-actionbar` | `%spawn_name%`, `%spawn_teleport_time_remaining%` | Countdown action bar |
-| `cooldown-active` | `%cooldown_remaining%` | Spawn cooldown active |
+| `warp-teleport-success` | `%warp_name%` | Warp teleport success |
+| `warp-teleport-actionbar` | `%warp_teleport_time_remaining%` | Warp countdown action bar |
+| `warp-not-found` | — | Warp name not found |
+| `warp-move` | — | Warp cancelled — player moved |
+| `warp-already-exists` | `%warp_name%` | Warp name already taken |
+| `setwarp-success` | `%warp_name%` | Warp created |
+| `delwarp-success` | `%warp_name%` | Warp deleted |
 | `gamemode.self` | `%player%`, `%gamemode%` | Own gamemode changed |
 | `gamemode.other` | `%player%`, `%gamemode%` | Another player's gamemode changed |
 | `msg-sender` | `%receiver%`, `%message%` | Private message — sender |

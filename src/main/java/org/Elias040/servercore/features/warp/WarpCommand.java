@@ -1,4 +1,4 @@
-package org.Elias040.servercore.features.spawn;
+package org.Elias040.servercore.features.warp;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.ConfigUtil;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SpawnCommand implements CommandExecutor, TabCompleter {
+public class WarpCommand implements CommandExecutor, TabCompleter {
 
     private static final double MOVE_CANCEL_DISTANCE_SQUARED = 9.0;
 
@@ -25,7 +25,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
 
     private final ConcurrentHashMap<UUID, Boolean> teleporting = new ConcurrentHashMap<>();
 
-    public SpawnCommand(Main plugin) {
+    public WarpCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -37,25 +37,25 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
-            p.sendMessage(TextUtil.toComponent("&cUsage: /spawn <n>"));
+            p.sendMessage(TextUtil.toComponent("&cUsage: /warp <n>"));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        String spawnName = args[0];
+        String warpName = args[0];
 
-        Optional<Location> targetOpt = plugin.spawns().getSpawn(spawnName);
+        Optional<Location> targetOpt = plugin.warps().getWarp(warpName);
         if (targetOpt.isEmpty()) {
-            p.sendMessage(plugin.messages().component("spawn-not-found", Map.of("spawn_name", spawnName)));
+            p.sendMessage(plugin.messages().component("warp-not-found", Map.of("warp_name", warpName)));
             SoundUtil.playError(plugin, p);
             return true;
         }
 
-        String displayName = plugin.spawns().getDisplayName(spawnName);
+        String displayName = plugin.warps().getDisplayName(warpName);
 
         if (teleporting.getOrDefault(p.getUniqueId(), false)) return true;
 
-        int delaySeconds = ConfigUtil.getInt(plugin, "spawn.teleport-delay-seconds", 3);
+        int delaySeconds = ConfigUtil.getInt(plugin, "warp.teleport-delay-seconds", 5);
         Location target = targetOpt.get();
 
         teleporting.put(p.getUniqueId(), true);
@@ -66,17 +66,17 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 1) {
-            return plugin.spawns().getDisplayNames().stream()
+            return plugin.warps().getDisplayNames().stream()
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .toList();
         }
         return List.of();
     }
 
-    private void startCountdownTeleport(Player player, String spawnName, Location target, int delaySeconds) {
+    private void startCountdownTeleport(Player player, String warpName, Location target, int delaySeconds) {
         if (delaySeconds <= 0) {
             teleporting.remove(player.getUniqueId());
-            doTeleport(player, spawnName, target);
+            doTeleport(player, warpName, target);
             return;
         }
 
@@ -93,7 +93,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
             if (movedTooFarXZ(start, player.getLocation())) {
                 teleporting.remove(player.getUniqueId());
                 task.cancel();
-                player.sendMessage(plugin.messages().component("spawn-move", Map.of("spawn_name", spawnName)));
+                player.sendMessage(plugin.messages().component("warp-move", Map.of("warp_name", warpName)));
                 SoundUtil.playError(plugin, player);
                 return;
             }
@@ -101,26 +101,26 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
             if (remaining[0] <= 0) {
                 teleporting.remove(player.getUniqueId());
                 task.cancel();
-                doTeleport(player, spawnName, target);
+                doTeleport(player, warpName, target);
                 return;
             }
 
-            player.sendActionBar(plugin.messages().component("spawn-teleport-actionbar", Map.of(
-                    "spawn_name", spawnName,
-                    "spawn_teleport_time_remaining", String.valueOf(remaining[0])
+            player.sendActionBar(plugin.messages().component("warp-teleport-actionbar", Map.of(
+                    "warp_name", warpName,
+                    "warp_teleport_time_remaining", String.valueOf(remaining[0])
             )));
-            SoundUtil.playTeleporting(plugin, player);
+            SoundUtil.playTeleporting(plugin, player, "warp.teleporting-sound");
             remaining[0]--;
 
         }, null, 1L, 20L);
     }
 
-    private void doTeleport(Player player, String spawnName, Location target) {
+    private void doTeleport(Player player, String warpName, Location target) {
         player.getScheduler().run(plugin, (task) ->
                 player.teleportAsync(target).thenRun(() ->
                         player.getScheduler().run(plugin, t -> {
-                            player.sendMessage(plugin.messages().component("spawn-teleport-success",
-                                    Map.of("spawn_name", spawnName)));
+                            player.sendMessage(plugin.messages().component("warp-teleport-success",
+                                    Map.of("warp_name", warpName)));
                             SoundUtil.playTeleportSuccess(plugin, player);
                         }, null)
                 ), null);

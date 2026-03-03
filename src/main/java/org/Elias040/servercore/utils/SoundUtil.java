@@ -23,7 +23,15 @@ public final class SoundUtil {
     }
 
     public static void playTeleporting(JavaPlugin plugin, Player player) {
-        play(player, plugin.getConfig().getString("spawn.teleporting-sound", ""));
+        playTeleporting(plugin, player, "spawn.teleporting-sound");
+    }
+
+    public static void playTeleporting(JavaPlugin plugin, Player player, String configPath) {
+        play(player, plugin.getConfig().getString(configPath, ""));
+    }
+
+    public static void playTeleportSuccess(JavaPlugin plugin, Player player) {
+        play(player, plugin.getConfig().getString("global.teleport-success-sound", ""));
     }
 
     private static Sound parseSound(String input) {

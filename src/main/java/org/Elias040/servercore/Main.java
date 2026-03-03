@@ -2,6 +2,7 @@ package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
 import org.Elias040.servercore.features.spawn.*;
+import org.Elias040.servercore.features.warp.*;
 import org.Elias040.servercore.features.invsee.InvSeeSessions;
 import org.Elias040.servercore.features.moderation.ChatModerationListener;
 import org.Elias040.servercore.features.moderation.ChatModerationService;
@@ -35,6 +36,7 @@ public class Main extends JavaPlugin {
 
     private MessageManager messageManager;
     private SpawnManager spawnManager;
+    private WarpManager warpManager;
     private ChatModerationService moderationService;
 
     @Override
@@ -45,6 +47,7 @@ public class Main extends JavaPlugin {
         this.messageManager.loadMessages();
 
         this.spawnManager = new SpawnManager(this);
+        this.warpManager = new WarpManager(this);
         this.moderationService = new ChatModerationService(this);
 
         FreezeListener freezeListener = new FreezeListener(this);
@@ -55,6 +58,11 @@ public class Main extends JavaPlugin {
         registerCommand("spawn",       spawnCommand);
         registerCommand("setspawn",    new SetSpawnCommand(this));
         registerCommand("delspawn",    new DelSpawnCommand(this));
+
+        WarpCommand warpCommand = new WarpCommand(this);
+        registerCommand("warp",        warpCommand);
+        registerCommand("setwarp",     new SetWarpCommand(this));
+        registerCommand("delwarp",     new DelWarpCommand(this));
         registerCommand("invsee",      new InvSeeCommand(this));
         registerCommand("broadcast",   new BroadcastCommand(this));
         registerCommand("nightvision", new NightVisionCommand(this));
@@ -84,6 +92,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         getServer().getPluginManager().registerEvents(new MsgQuitListener(), this);
         getServer().getPluginManager().registerEvents(new SpawnQuitListener(spawnCommand), this);
+        getServer().getPluginManager().registerEvents(new WarpQuitListener(warpCommand), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         getServer().getPluginManager().registerEvents(new MediaListener(this), this);
@@ -100,10 +109,12 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if (spawnManager != null) spawnManager.shutdown();
+        if (warpManager  != null) warpManager.shutdown();
         InvSeeSessions.clear();
     }
 
     public MessageManager messages() { return messageManager; }
-    public SpawnManager spawns() { return spawnManager; }
+    public SpawnManager spawns()     { return spawnManager; }
+    public WarpManager  warps()      { return warpManager; }
     public ChatModerationService moderation() { return moderationService; }
 }
