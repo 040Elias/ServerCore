@@ -1,32 +1,30 @@
 package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
-import org.Elias040.servercore.commands.DelSpawnCommand;
-import org.Elias040.servercore.moderation.ChatModerationListener;
-import org.Elias040.servercore.moderation.ChatModerationService;
+import org.Elias040.servercore.features.spawn.*;
+import org.Elias040.servercore.features.invsee.InvSeeSessions;
+import org.Elias040.servercore.features.moderation.ChatModerationListener;
+import org.Elias040.servercore.features.moderation.ChatModerationService;
 import org.Elias040.servercore.commands.DiscordCommand;
-import org.Elias040.servercore.commands.FreezeCommand;
+import org.Elias040.servercore.features.freeze.FreezeCommand;
 import org.Elias040.servercore.commands.GamemodeCommand;
-import org.Elias040.servercore.commands.InvSeeCommand;
+import org.Elias040.servercore.features.invsee.InvSeeCommand;
 import org.Elias040.servercore.commands.LiveCommand;
-import org.Elias040.servercore.commands.MediaCommand;
-import org.Elias040.servercore.commands.MsgCommand;
-import org.Elias040.servercore.commands.NightVisionCommand;
+import org.Elias040.servercore.features.media.MediaCommand;
+import org.Elias040.servercore.features.msg.MsgCommand;
+import org.Elias040.servercore.features.nightvision.NightVisionCommand;
 import org.Elias040.servercore.commands.PingCommand;
 import org.Elias040.servercore.commands.ServerCoreCommand;
-import org.Elias040.servercore.commands.ReplyCommand;
-import org.Elias040.servercore.commands.SetSpawnCommand;
-import org.Elias040.servercore.commands.SpawnCommand;
-import org.Elias040.servercore.commands.UnfreezeCommand;
+import org.Elias040.servercore.features.msg.ReplyCommand;
+import org.Elias040.servercore.features.freeze.UnfreezeCommand;
 import org.Elias040.servercore.commands.WhoisCommand;
-import org.Elias040.servercore.freeze.FreezeListener;
-import org.Elias040.servercore.invsee.InvSeeListener;
+import org.Elias040.servercore.features.freeze.FreezeListener;
+import org.Elias040.servercore.features.invsee.InvSeeListener;
 import org.Elias040.servercore.listeners.DeathListener;
 import org.Elias040.servercore.listeners.JoinLeaveListener;
-import org.Elias040.servercore.listeners.MsgQuitListener;
-import org.Elias040.servercore.media.MediaListener;
-import org.Elias040.servercore.nightvision.NightVisionListener;
-import org.Elias040.servercore.spawn.SpawnManager;
+import org.Elias040.servercore.features.msg.MsgQuitListener;
+import org.Elias040.servercore.features.media.MediaListener;
+import org.Elias040.servercore.features.nightvision.NightVisionListener;
 import org.Elias040.servercore.utils.MessageManager;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandExecutor;
@@ -85,7 +83,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(freezeListener, this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         getServer().getPluginManager().registerEvents(new MsgQuitListener(), this);
-        getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.SpawnQuitListener(spawnCommand), this);
+        getServer().getPluginManager().registerEvents(new SpawnQuitListener(spawnCommand), this);
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         getServer().getPluginManager().registerEvents(new MediaListener(this), this);
@@ -102,7 +100,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if (spawnManager != null) spawnManager.shutdown();
-        org.Elias040.servercore.invsee.InvSeeSessions.clear();
+        InvSeeSessions.clear();
     }
 
     public MessageManager messages() { return messageManager; }

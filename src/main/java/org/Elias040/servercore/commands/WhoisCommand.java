@@ -2,7 +2,7 @@ package org.Elias040.servercore.commands;
 
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.freeze.FreezeManager;
+import org.Elias040.servercore.features.freeze.FreezeManager;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
