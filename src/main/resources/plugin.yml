@@ -137,6 +137,21 @@ permissions:
     default: op
   servercore.media:
     default: true
+  servercore.moderation.bypass.cooldown:
+    description: "Bypass chat message cooldown"
+    default: op
+  servercore.moderation.bypass.similarity:
+    description: "Bypass repeated message filter"
+    default: op
+  servercore.moderation.bypass.uppercase:
+    description: "Bypass uppercase filter"
+    default: op
+  servercore.moderation.bypass.blacklist:
+    description: "Bypass chat blacklisted words"
+    default: op
+  servercore.moderation.bypass.command:
+    description: "Bypass command cooldowns"
+    default: op
   servercore.use:
     description: "Access /servercore reload and version"
     default: op

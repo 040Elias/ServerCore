@@ -46,3 +46,9 @@ live-invalid-url: "&cPlease provide a valid URL starting with http:// or https:/
 gamemode:
   self: "&7Your gamemode has been changed to &#38c1fc%gamemode%&7."
   other: "&7You changed &#38c1fc%player%&7's gamemode to &#38c1fc%gamemode%&7."
+
+moderation-chat-cooldown: "&cPlease wait %remaining_time% before sending another message."
+moderation-similarity: "&cPlease do not repeat the same (or similiar) message."
+moderation-uppercase: "&cDo not use so much CAPS LOCK!"
+moderation-blacklist: "&cYour message contains a prohibited word."
+moderation-command-cooldown: "&cYou need to wait another %time% seconds to execute a command."

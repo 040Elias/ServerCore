@@ -65,3 +65,42 @@ media:
     leather-color: "#91255b"
     command: "discord"
     runAsConsole: false
+
+moderation:
+
+  chat-cooldown:
+    enabled: true
+    cooldown-millis: 2000
+    bypass-permission: "servercore.moderation.bypass.cooldown"
+
+  similarity:
+    enabled: true
+    threshold: 0.85
+    max-compare-length: 100
+    time-window-millis: 30000
+    bypass-permission: "servercore.moderation.bypass.similarity"
+
+  uppercase:
+    enabled: true
+    max-uppercase-percent: 70
+    min-letters-to-check: 8
+    bypass-permission: "servercore.moderation.bypass.uppercase"
+
+  blacklist:
+    enabled: true
+    match-mode: "WHOLE_WORD" # WHOLE_WORD or CONTAINS (not recommended)
+    ignore-case: true
+    bypass-permission: "servercore.moderation.bypass.blacklist"
+    words:
+      - "nigga"
+      - "nigger"
+      - "retard"
+      - "bastard"
+      - "faggot"
+  command-cooldown:
+    bypass-permission: "servercore.moderation.bypass.command"
+    global:
+      enabled: true
+      cooldown-millis: 1000
+    per-command:
+      example: 2000

@@ -2,6 +2,8 @@ package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
 import org.Elias040.servercore.commands.DelSpawnCommand;
+import org.Elias040.servercore.moderation.ChatModerationListener;
+import org.Elias040.servercore.moderation.ChatModerationService;
 import org.Elias040.servercore.commands.DiscordCommand;
 import org.Elias040.servercore.commands.FreezeCommand;
 import org.Elias040.servercore.commands.GamemodeCommand;
@@ -35,6 +37,7 @@ public class Main extends JavaPlugin {
 
     private MessageManager messageManager;
     private SpawnManager spawnManager;
+    private ChatModerationService moderationService;
 
     @Override
     public void onEnable() {
@@ -44,6 +47,7 @@ public class Main extends JavaPlugin {
         this.messageManager.loadMessages();
 
         this.spawnManager = new SpawnManager(this);
+        this.moderationService = new ChatModerationService(this);
 
         FreezeListener freezeListener = new FreezeListener(this);
         MsgCommand msgCommand = new MsgCommand(this);
@@ -85,6 +89,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new org.Elias040.servercore.listeners.LiveQuitListener(liveCommand), this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         getServer().getPluginManager().registerEvents(new MediaListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChatModerationListener(this, moderationService), this);
     }
 
     private void registerCommand(String name, Object executor) {
@@ -102,4 +107,5 @@ public class Main extends JavaPlugin {
 
     public MessageManager messages() { return messageManager; }
     public SpawnManager spawns() { return spawnManager; }
+    public ChatModerationService moderation() { return moderationService; }
 }

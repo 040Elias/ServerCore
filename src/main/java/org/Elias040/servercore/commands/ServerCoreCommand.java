@@ -50,6 +50,7 @@ public class ServerCoreCommand implements CommandExecutor, TabCompleter {
         if (args[0].equalsIgnoreCase("reload")) {
             plugin.reloadConfig();
             plugin.messages().loadMessages();
+            plugin.moderation().reload();
             sender.sendMessage(TextUtil.toComponent("&7Successfully &#38c1fcreloaded&7 the configs."));
             return true;
         }

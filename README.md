@@ -1,113 +1,143 @@
 # ServerCore
 
-ServerCore is a Folia-focused core plugin that provides common server utility features such as spawns, moderation tools, messaging, gamemode management, and configurable chat formatting.  
-Built for Minecraft 1.21.x with Folia-safe scheduling throughout.
+Most core plugins were built for Bukkit. ServerCore was built for **Folia**.
 
-## Requirements
+Plugins like EssentialsX were designed around a single main thread — an assumption that is fundamentally incompatible with Folia's region-thread model. Adapting legacy code to that constraint is non-trivial, and the gaps tend to surface under load rather than in testing.
 
-- Minecraft: 1.21.x
-- Server: Folia (Paper-compatible)
-- Java: 21
+ServerCore is designed for **performance-oriented Folia networks** that prefer minimal, predictable core utilities over feature-heavy monoliths. Every scheduling decision is explicit, every thread context is intentional, and the feature set is limited to what a server actually needs.
 
-## Features
+---
 
-### Utilities
-- Named spawns:
-    - `/spawn [name]` with configurable teleport delay and cooldown
-    - Movement-cancel while teleporting
-    - `/setspawn <n>` and `/delspawn <n>`
-    - Spawns are stored in `plugins/ServerCore/data/spawns.yml`
-- `/invsee <player>` — read-only inventory snapshot GUI (clicks, drags blocked)
-- `/ping [player]`
+## Why ServerCore?
+
+| | Legacy core plugins | ServerCore                                         |
+|---|---|----------------------------------------------------| 
+| Folia support | Incompatible or partial | Built for Folia from the start                     |
+| Threading model | Single main thread assumed | EntityScheduler + GlobalRegionScheduler throughout |
+| Codebase | Years of accumulated legacy | Written for 1.21.11 from scratch                   |
+| Feature scope | Everything + kitchen sink | Focused — only what a server actually needs        |
+| Chat moderation | Basic or absent | Built-in, async-safe, configurable per-check       |
+| Config reload | Varies | Full hot-reload including moderation state         |
+
+---
+
+## Compatibility
+
+| |                                                   |
+|---|---------------------------------------------------|
+| **Minecraft** | 1.21.11                                           |
+| **Server software** | Folia · Paper (compatible)                        |
+| **Java** | 21+                                               |
+| **Permission plugins** | LuckPerms or almost any Bukkit permissions Plugin |
+
+---
+
+## What's included
+
+### Spawns
+Named spawn points with configurable teleport delay, movement cancellation, and per-player cooldowns. Multiple spawns supported out of the box — `/spawn lobby`, `/spawn pvp`, etc.
+
+### Chat Moderation
+Five independent, toggleable checks — each with its own bypass permission:
+
+- **Message cooldown** — minimum interval between chat messages per player
+- **Similarity filter** — normalized Levenshtein comparison blocks near-identical repeat messages, with a length-diff early exit to prevent async thread saturation
+- **Uppercase limit** — percentage-based, letter-only (emojis and numbers ignored)
+- **Word blacklist** — pre-compiled `CONTAINS` or `WHOLE_WORD` matching, case-insensitive option
+- **Command cooldowns** — global baseline with per-command overrides; namespace-stripped so `/minecraft:spawn` and `/spawn` share the same cooldown bucket
+
+All checks run in the correct thread context. Chat checks run on the async chat thread with no entity access. Command checks are re-dispatched onto the player's entity thread before any permission lookup.
 
 ### Gamemode Aliases
-- `/gm <mode> [player]` — generic alias supporting `0/1/2/3`, `survival/creative/adventure/spectator`
-- `/gmc [player]`, `/gms [player]`, `/gma [player]`, `/gmsp [player]` — quick aliases
-- No vanilla gamemode message; fully custom messages via `messages.yml`
-- Targeting another player requires `servercore.gamemode.other`
+`/gm`, `/gmc`, `/gms`, `/gma`, `/gmsp` with per-mode permission granularity and full custom messaging.
 
-### Media GUI
-- `/media` — opens a 27-slot (3-row) inventory GUI
-- Configurable action item in the centre slot (slot 13)
-- All other slots filled with a configurable filler item (optional)
-- Fully exploit-proof: clicks, drags, shift-clicks, number-key swaps, hopper transfers and drops are all blocked
-- Action item executes a configurable command on click (as player or as console)
-- Supports `{player}` placeholder in the command
-- Leather armor items can be given a custom dye color via `media.item.leather-color`
+### Player Tools
+`/invsee` read-only inventory snapshot, `/ping`, `/whois` with sensitive data gated behind a separate permission, night vision toggle persisted via PDC.
 
 ### Communication
-- Private messages: `/msg <player> <message>` and `/reply <message>` (`/r`)
-- `/discord` — configurable multi-line output, links become clickable automatically
-- `/live <url>` — validates http/https URLs, configurable cooldown, broadcasts clickable stream link to all players
+Private messaging (`/msg`, `/reply`), `/discord` with clickable links, `/live` stream announcements with cooldown and URL validation.
 
-### Moderation
-- Freeze system:
-    - `/freeze <player>` and `/unfreeze <player>`
-    - Prevents movement and command usage while frozen
-    - Staff notifications on frozen player leave/rejoin
-    - Frozen state persists via Persistent Data Container (PDC) across restarts
-- Night vision toggle: `/nightvision` (`/nv`) — persists via PDC, reapplied on join/respawn
-- `/whois <player>` — shows UUID, join dates, playtime, ping; IP/client/location gated behind `servercore.whois.sensitive`
+### Staff Tools
+Full freeze system — blocks movement and commands, persists across restarts via PDC, notifies online staff on frozen player leave/rejoin.
 
-### Chat Formatting
-- Custom join/leave/first-join messages (vanilla messages suppressed)
-- Death message formatting: configurable prefix, message color, and suffix
+### Media GUI
+Configurable 27-slot GUI with a centred action item, optional filler, leather armor dye color support, and full exploit protection (shift-click, hotbar swap, hopper transfer all blocked).
 
 ### Maintenance
-- `/servercore reload` — hot-reloads `config.yml` and `messages.yml` without restart
+`/servercore reload` hot-reloads `config.yml`, `messages.yml`, and all moderation state without a restart.
+
+---
+
+## Thread Safety
+
+Every operation is dispatched on the scheduler that owns it:
+
+| Operation | Scheduler |
+|-----------|-----------|
+| Player messages, sounds, titles, inventory | `player.getScheduler().run()` |
+| Teleport countdown ticks | `player.getScheduler().runAtFixedRate()` |
+| Server-wide broadcasts, freeze staff alerts | `getGlobalRegionScheduler().execute()` |
+| Async chat moderation checks | Native async — no entity access |
+| Command cooldown permission checks | Re-dispatched to entity thread before lookup |
+| Spawn file I/O | Dedicated `ExecutorService`, flushed on shutdown |
+
+The distinction matters: claiming "Folia compatible" is easy. Correctly separating entity-thread operations from global-region operations, and handling async events without unsafe entity access, is the actual work.
 
 ---
 
 ## Installation
 
 1. Download the latest jar from the Releases tab.
-2. Drop it into your server's `plugins/` folder.
-3. Start the server once to generate default config files.
-4. Edit `plugins/ServerCore/config.yml` and `messages.yml` to your liking.
-5. Restart or run `/servercore reload`.
+2. Drop it into `plugins/`.
+3. Start the server once to generate config files.
+4. Edit `plugins/ServerCore/config.yml` and `messages.yml`.
+5. Reload live with `/servercore reload` or restart.
 
 ---
 
 ## Commands & Permissions
 
-| Command | Description | Permission | Default |
-|---------|-------------|------------|---------|
-| `/spawn [name]` | Teleport to a spawn | `servercore.spawn.use` | everyone |
-| `/setspawn <n>` | Create a named spawn | `servercore.spawn.setspawn` | op |
-| `/delspawn <n>` | Delete a named spawn | `servercore.spawn.delspawn` | op |
-| `/invsee <player>` | Read-only inventory snapshot | `servercore.invsee` | op |
-| `/broadcast <message>` | Broadcast title + chat message | `servercore.broadcast` | op |
-| `/nightvision` (`/nv`) | Toggle night vision | `servercore.nightvision` | op |
-| `/ping [player]` | Show own ping | `servercore.ping` | everyone |
-| `/ping <player>` | Show another player's ping | `servercore.ping.other` | op |
-| `/freeze <player>` | Freeze a player | `servercore.freeze` | op |
-| `/unfreeze <player>` | Unfreeze a player | `servercore.unfreeze` | op |
-| `/whois <player>` | Basic player info | `servercore.whois.use` | op |
-| `/whois <player>` | + IP / client / location | `servercore.whois.sensitive` | op |
-| `/msg <player> <message>` | Private message | `servercore.msg` | everyone |
-| `/reply <message>` (`/r`) | Reply to last partner | `servercore.msg` | everyone |
-| `/discord` | Show Discord info | `servercore.discord` | everyone |
-| `/live <url>` | Broadcast a stream link | `servercore.live` | op |
-| `/gm <mode> [player]` | Generic gamemode alias | `servercore.gamemode` | op |
-| `/gmc [player]` | Switch to Creative | `servercore.gamemode` | op |
-| `/gms [player]` | Switch to Survival | `servercore.gamemode` | op |
-| `/gma [player]` | Switch to Adventure | `servercore.gamemode` | op |
-| `/gmsp [player]` | Switch to Spectator | `servercore.gamemode` | op |
-| `/gm* <player>` | Target another player | `servercore.gamemode.other` | op |
-| `/media` | Open the Media GUI | `servercore.media` | everyone |
-| `/servercore reload` | Reload configs | `servercore.reload` | op |
+| Command                      | Description                       | Permission | Default |
+|------------------------------|-----------------------------------|------------|---------|
+| `/spawn [name]`              | Teleport to a spawn               | `servercore.spawn.use` | everyone |
+| `/setspawn <n>`              | Create a named spawn              | `servercore.spawn.setspawn` | op |
+| `/delspawn <n>`              | Delete a named spawn              | `servercore.spawn.delspawn` | op |
+| `/invsee <player>`           | Read-only inventory snapshot      | `servercore.invsee` | op |
+| `/broadcast <message>`       | Broadcast title + chat message    | `servercore.broadcast` | op |
+| `/nightvision` (`/nv`)       | Toggle night vision               | `servercore.nightvision` | op |
+| `/ping [player]`             | Show own or another player's ping | `servercore.ping` / `servercore.ping.other` | everyone / op |
+| `/freeze <player>`           | Freeze a player                   | `servercore.freeze` | op |
+| `/unfreeze <player>`         | Unfreeze a player                 | `servercore.unfreeze` | op |
+| `/whois <player>`            | Player info                       | `servercore.whois.use` | op |
+| `/msg <player> <message>`    | Private message                   | `servercore.msg` | everyone |
+| `/reply <message>` (`/r`)    | Reply to last DM                  | `servercore.msg` | everyone |
+| `/discord`                   | Show Discord info                 | `servercore.discord` | everyone |
+| `/live <url>`                | Broadcast stream link             | `servercore.live` | op |
+| `/gm <mode> [player]`        | Gamemode alias                    | `servercore.gamemode` | op |
+| `/gmc` `/gms` `/gma` `/gmsp` | Quick gamemode shortcuts          | `servercore.gamemode` | op |
+| `/media`                     | Open Media GUI                    | `servercore.media` | everyone |
+| `/servercore <subcommand>`   | Acces to Main Command             | `servercore.use` | op |
 
-### Additional Permissions
+### Moderation Bypass Permissions
 
 | Permission | Description | Default |
 |------------|-------------|---------|
-| `servercore.gamemode.survival` | Allow only Survival mode | op |
-| `servercore.gamemode.creative` | Allow only Creative mode | op |
-| `servercore.gamemode.adventure` | Allow only Adventure mode | op |
-| `servercore.gamemode.spectator` | Allow only Spectator mode | op |
+| `servercore.moderation.bypass.cooldown` | Bypass chat message cooldown | op |
+| `servercore.moderation.bypass.similarity` | Bypass repeat message filter | op |
+| `servercore.moderation.bypass.uppercase` | Bypass uppercase filter | op |
+| `servercore.moderation.bypass.blacklist` | Bypass word blacklist | op |
+| `servercore.moderation.bypass.command` | Bypass all command cooldowns | op |
+
+### Other Permissions
+
+| Permission | Description | Default |
+|------------|-------------|---------|
 | `servercore.freeze.bypass` | Use commands while frozen | false |
 | `servercore.freeze.notify` | Receive staff freeze alerts | op |
-| `servercore.join.silent` | Join/leave without message | false |
+| `servercore.join.silent` | Join/leave silently | false |
+| `servercore.gamemode.survival/creative/adventure/spectator` | Per-mode granularity | op |
+| `servercore.gamemode.other` | Change another player's gamemode | op |
+| `servercore.whois.sensitive` | See IP, client, location in /whois | op |
 
 ---
 
@@ -115,10 +145,46 @@ Built for Minecraft 1.21.x with Folia-safe scheduling throughout.
 
 ### config.yml
 
-#### Global
+#### Chat Moderation
 ```yaml
-global:
-  error-sound: "ENTITY.VILLAGER.NO"
+moderation:
+
+  chat-cooldown:
+    enabled: true
+    cooldown-millis: 1000                          # Minimum ms between chat messages
+    bypass-permission: "servercore.moderation.bypass.cooldown"
+
+  similarity:
+    enabled: true
+    threshold: 0.85                                # 0.0–1.0, higher = stricter
+    max-compare-length: 100                        # String cap for performance
+    time-window-millis: 30000                      # Only compare within this window
+    bypass-permission: "servercore.moderation.bypass.similarity"
+
+  uppercase:
+    enabled: true
+    max-uppercase-percent: 70                      # Letters only, ignores numbers/emoji
+    min-letters-to-check: 8                        # Minimum letters before check applies
+    bypass-permission: "servercore.moderation.bypass.uppercase"
+
+  blacklist:
+    enabled: true
+    match-mode: "CONTAINS"                         # CONTAINS | WHOLE_WORD
+    ignore-case: true
+    bypass-permission: "servercore.moderation.bypass.blacklist"
+    words:
+      - "badword1"
+      - "badword2"
+
+  command-cooldown:
+    bypass-permission: "servercore.moderation.bypass.command"
+    global:
+      enabled: true
+      cooldown-millis: 500
+    per-command:                                   # Overrides global, key = command name (no slash)
+      spawn: 10000
+      msg: 2000
+      reply: 2000
 ```
 
 #### Spawn
@@ -130,14 +196,11 @@ spawn:
   default-spawn: "1"
 ```
 
-#### InvSee
+#### Other
 ```yaml
-invsee:
-  title: "&fInvSee: &#38c1fc%target%"   # %target% = player name
-```
+global:
+  error-sound: "ENTITY.VILLAGER.NO"
 
-#### Broadcast / Discord / Live
-```yaml
 broadcast:
   sound: "BLOCK.NOTE_BLOCK.BELL"
 
@@ -145,107 +208,52 @@ discord:
   sound: "BLOCK.NOTE_BLOCK.PLING"
   lines:
     - "&#38c1fcJoin our community"
-    - "https://discord.gg/yourserver"   # URLs become clickable automatically
+    - "https://discord.gg/yourserver"
 
 live:
   cooldown-minutes: 15
   sound: "BLOCK.NOTE_BLOCK.BELL"
   lines:
     - "  &#38c1fc&l%player% is now live!"
-    - "  &fWatch: %link%"               # %player% and %link% are supported
-```
+    - "  &fWatch: %link%"
 
-#### Death Messages
-```yaml
 death:
   prefix: "&#ff0000☠ "
   message-color: "&#ff0000"
   suffix: "&#ff0000."
+
+invsee:
+  title: "&fInvSee: &#38c1fc%target%"
 ```
-
-#### Media GUI
-```yaml
-media:
-  title: "&#38c1fc&lMedia"
-
-  filler:
-    enabled: true
-    material: "GRAY_STAINED_GLASS_PANE"
-    name: " "
-    lore: []
-
-  item:
-    material: "LEATHER_HELMET"
-    name: "&#38c1fc&lClick here!"
-    lore:
-      - ""
-      - "&7Visit our social media"
-    # Hex dye color for leather armor items — ignored for non-leather materials.
-    # Accepted formats:  "#RRGGBB"  |  "RRGGBB"  |  "&#RRGGBB"
-    leather-color: "#FF4400"
-    # Command run when the item is clicked. {player} = clicking player's name.
-    command: "discord"
-    # true = dispatch as console, false = player executes the command
-    runAsConsole: false
-```
-
-> **Leather armor — supported materials:**  
-> `LEATHER_HELMET`, `LEATHER_CHESTPLATE`, `LEATHER_LEGGINGS`, `LEATHER_BOOTS`, `LEATHER_HORSE_ARMOR`
->
-> Example — dyed orange Leather Cap that opens a stream link:
-> ```yaml
-> media:
->   item:
->     material: "LEATHER_HELMET"
->     name: "&6&lWatch us live!"
->     leather-color: "#FF6A00"
->     command: "live https://twitch.tv/yourchannel"
->     runAsConsole: false
-> ```
 
 ---
 
 ### messages.yml
 
-All user-facing messages live in `messages.yml`.  
-Supports `&` color codes and hex colors (`&#RRGGBB`).
+Supports `&` color codes and `&#RRGGBB` hex colors throughout.
 
 | Key | Placeholders | Description |
 |-----|-------------|-------------|
-| `no-permission` | — | No permission message |
-| `only-players` | — | Console-only-players guard |
-| `player-not-found` | — | Target player not online |
-| `spawn-teleport-success` | `%spawn_name%` | After successful teleport |
+| `moderation-chat-cooldown` | `%remaining_time%` (seconds) | Chat cooldown feedback |
+| `moderation-similarity` | — | Repeat message blocked |
+| `moderation-uppercase` | — | Too many caps |
+| `moderation-blacklist` | — | Blacklisted word detected |
+| `moderation-command-cooldown` | `%time%` (seconds) | Command cooldown feedback |
+| `spawn-teleport-success` | `%spawn_name%` | Teleport success |
 | `spawn-teleport-actionbar` | `%spawn_name%`, `%spawn_teleport_time_remaining%` | Countdown action bar |
-| `spawn-move` | `%spawn_name%` | Teleport cancelled due to movement |
-| `cooldown-active` | `%cooldown_remaining%` | Spawn cooldown still active |
-| `gamemode.self` | `%player%`, `%gamemode%` | Sent to the player whose mode changed |
-| `gamemode.other` | `%player%`, `%gamemode%`, `%sender%` | Sent to the admin who changed it |
-| `msg-sender` | `%receiver%`, `%message%` | Private message — sender side |
-| `msg-receiver` | `%sender%`, `%message%` | Private message — receiver side |
-| `live-cooldown` | `%remaining%` | `/live` on cooldown |
+| `cooldown-active` | `%cooldown_remaining%` | Spawn cooldown active |
+| `gamemode.self` | `%player%`, `%gamemode%` | Own gamemode changed |
+| `gamemode.other` | `%player%`, `%gamemode%` | Another player's gamemode changed |
+| `msg-sender` | `%receiver%`, `%message%` | Private message — sender |
+| `msg-receiver` | `%sender%`, `%message%` | Private message — receiver |
 | `ping-self` | `%ping%` | Own ping |
 | `ping-other` | `%player%`, `%ping%` | Another player's ping |
 | `freeze-frozen` | `%player%` | Freeze confirmation |
 | `freeze-unfrozen` | `%player%` | Unfreeze confirmation |
 | `join` | `%player%` | Join message |
 | `leave` | `%player%` | Leave message |
-| `first-join` | `%player%` | First-time join message |
-
----
-
-## Folia Notes
-
-All entity/world operations are dispatched on the correct scheduler:
-
-| Operation | Scheduler used |
-|-----------|---------------|
-| Gamemode change, inventory open, sound | `player.getScheduler().run()` |
-| Teleport countdown | `player.getScheduler().runAtFixedRate()` |
-| Join/leave broadcast, freeze staff alerts | `getServer().getGlobalRegionScheduler().execute()` |
-| NightVision death poller | `getGlobalRegionScheduler().runAtFixedRate()` |
-| Media GUI console command dispatch | `getGlobalRegionScheduler().execute()` |
-| Spawn file I/O | Dedicated `ExecutorService`, flushed on `onDisable()` |
+| `first-join` | `%player%` | First join message |
+| `live-cooldown` | `%remaining%` | `/live` cooldown |
 
 ---
 
