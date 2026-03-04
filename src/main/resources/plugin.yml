@@ -115,7 +115,7 @@ permissions:
   servercore.ping:
     default: true
   servercore.ping.other:
-    default: op
+    default: true
   servercore.freeze:
     default: op
   servercore.freeze.bypass:
