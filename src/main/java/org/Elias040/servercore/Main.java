@@ -1,6 +1,7 @@
 package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
+import org.Elias040.servercore.commands.HealCommand;
 import org.Elias040.servercore.features.spawn.*;
 import org.Elias040.servercore.features.warp.*;
 import org.Elias040.servercore.features.invsee.InvSeeSessions;
@@ -65,6 +66,7 @@ public class Main extends JavaPlugin {
         registerCommand("delwarp",     new DelWarpCommand(this));
         registerCommand("invsee",      new InvSeeCommand(this));
         registerCommand("broadcast",   new BroadcastCommand(this));
+        registerCommand("heal",        new HealCommand(this));
         registerCommand("nightvision", new NightVisionCommand(this));
         registerCommand("ping",        new PingCommand(this));
         registerCommand("freeze",      new FreezeCommand(this, freezeListener));

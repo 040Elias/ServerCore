@@ -65,10 +65,6 @@ commands:
   live:
     usage: /live <url>
     permission: servercore.live
-  servercore:
-    usage: /servercore <reload|version>
-    description: Main ServerCore command
-    permission: servercore.use
   gm:
     usage: /gm <mode> [player]
     permission: servercore.gamemode
@@ -89,6 +85,13 @@ commands:
     usage: /media
     permission: servercore.media
     default: true
+  heal:
+    usage: /heal [player]
+    permission: servercore.heal
+  servercore:
+    usage: /servercore <reload|version>
+    description: Main ServerCore command
+    permission: servercore.use
 
 permissions:
   servercore.spawn.setspawn:
@@ -167,6 +170,10 @@ permissions:
     default: op
   servercore.moderation.bypass.command:
     description: "Bypass command cooldowns"
+    default: op
+  servercore.heal:
+    default: op
+  servercore.heal.other:
     default: op
   servercore.use:
     description: "Access /servercore reload and version"

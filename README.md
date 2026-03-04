@@ -71,6 +71,7 @@ Most core plugins were built for Bukkit and bolted onto Folia after the fact. Se
 | `/warp <n>` | Teleport to a named warp |
 | `/setwarp <n>` · `/delwarp <n>` | Create or delete a warp |
 | `/freeze <player>` · `/unfreeze <player>` | Freeze or unfreeze a player |
+| `/heal [player]` | Restore health and hunger |
 | `/invsee <player>` | Read-only inventory snapshot |
 | `/msg <player> <message>` · `/reply` | Private messaging |
 | `/ping [player]` | Show ping |

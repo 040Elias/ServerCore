@@ -59,3 +59,7 @@ moderation-similarity: "&cPlease do not repeat the same (or similiar) message."
 moderation-uppercase: "&cDo not use so much CAPS LOCK!"
 moderation-blacklist: "&cYour message contains a prohibited word."
 moderation-command-cooldown: "&cYou need to wait another %time% seconds to execute a command."
+
+heal-self: "&7You have been &#38c1fchealed&7."
+heal-other: "&7You healed &#38c1fc%player%&7."
+heal-by-other: "&7You were healed by &#38c1fc%player%&7."
