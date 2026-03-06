@@ -26,7 +26,6 @@ public class JoinLeaveListener implements Listener {
 
         if (player.hasPermission("servercore.join.silent")) return;
 
-        // Pre-build the component before scheduling — Component is immutable and thread-safe.
         Component msg = player.hasPlayedBefore()
                 ? plugin.messages().component("join",       Map.of("player", player.getName()))
                 : plugin.messages().component("first-join", Map.of("player", player.getName()));

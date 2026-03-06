@@ -6,6 +6,7 @@ import org.Elias040.servercore.features.freeze.FreezeManager;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,6 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class WhoisCommand implements CommandExecutor, TabCompleter {
@@ -35,91 +37,82 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("servercore.whois.use")) {
-            if (sender instanceof Player p) {
-                p.sendMessage(plugin.messages().component("no-permission", Map.of()));
-                SoundUtil.playError(plugin, p);
-            } else {
-                sender.sendMessage(plugin.messages().raw("no-permission"));
-            }
+            sendError(sender, "no-permission");
             return true;
         }
-
         if (args.length != 1) {
             sender.sendMessage(TextUtil.toComponent("&cUsage: /whois <player>"));
             return true;
         }
 
         Player target = Bukkit.getPlayerExact(args[0]);
-        if (target == null || !target.isOnline()) {
-            if (sender instanceof Player p) {
-                p.sendMessage(plugin.messages().component("player-not-found", Map.of()));
-                SoundUtil.playError(plugin, p);
-            } else {
-                sender.sendMessage(plugin.messages().raw("player-not-found"));
-            }
+        if (target == null) {
+            sendError(sender, "player-not-found");
             return true;
         }
 
-        boolean sensitive = sender.hasPermission("servercore.whois.sensitive");
-        String targetName = target.getName();
-        String targetUuid = target.getUniqueId().toString();
+        boolean sensitive  = sender.hasPermission("servercore.whois.sensitive");
+        String  targetName = target.getName();
+        String  targetUuid = target.getUniqueId().toString();
 
         target.getScheduler().run(plugin, t -> {
-            List<Component> lines = new ArrayList<>();
-
-            lines.add(TextUtil.toComponent("&#38c1fc&l--- Whois of " + targetName + " ---"));
-            lines.add(Component.empty());
-            lines.add(line("UUID",       targetUuid));
-            lines.add(line("First Join", DATE_FORMAT.format(Instant.ofEpochMilli(target.getFirstPlayed()))));
-            lines.add(line("Last Seen",  DATE_FORMAT.format(Instant.ofEpochMilli(target.getLastSeen()))));
-            lines.add(line("Playtime",   formatPlaytime(target.getStatistic(Statistic.PLAY_ONE_MINUTE))));
-            lines.add(line("Ping",       target.getPing() + "ms"));
-
-            if (sensitive) {
-                lines.add(Component.empty());
-
-                String ip = target.getAddress() != null
-                        ? target.getAddress().getAddress().getHostAddress()
-                        : "unknown";
-                String client = target.getClientBrandName() != null
-                        ? target.getClientBrandName()
-                        : "unknown";
-
-                lines.add(line("IP",       ip));
-                lines.add(line("Client",   client));
-                lines.add(line("Frozen",   FreezeManager.isFrozen(target) ? "&ctrue" : "&afalse"));
-                lines.add(line("Gamemode", capitalize(target.getGameMode().name())));
-                lines.add(line("Position", formatLocation(target)));
-            }
-
-            lines.add(Component.empty());
-            lines.add(TextUtil.toComponent("&#38c1fc&l---"));
-
-            if (sender instanceof Player sp) {
-                sp.getScheduler().run(plugin, t2 -> {
-                    for (Component c : lines) sp.sendMessage(c);
-                }, null);
-            } else {
-                for (Component c : lines) sender.sendMessage(c);
-            }
+            List<Component> lines = buildWhoisLines(target, targetName, targetUuid, sensitive);
+            deliverLines(sender, lines);
         }, null);
 
         return true;
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args.length == 1) {
-            return Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
-                    .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
-                    .toList();
+    private List<Component> buildWhoisLines(Player target, String name, String uuid, boolean sensitive) {
+        List<Component> lines = new ArrayList<>();
+
+        lines.add(TextUtil.toComponent("&#38c1fc&l--- Whois of " + name + " ---"));
+        lines.add(Component.empty());
+        lines.add(line("UUID",       uuid));
+        lines.add(line("First Join", DATE_FORMAT.format(Instant.ofEpochMilli(target.getFirstPlayed()))));
+        lines.add(line("Last Seen",  DATE_FORMAT.format(Instant.ofEpochMilli(target.getLastSeen()))));
+        lines.add(line("Playtime",   formatPlaytime(target.getStatistic(Statistic.PLAY_ONE_MINUTE))));
+        lines.add(line("Ping",       target.getPing() + "ms"));
+
+        if (sensitive) {
+            lines.add(Component.empty());
+            lines.add(line("IP",       resolveIp(target)));
+            lines.add(line("Client",   resolveClient(target)));
+            lines.add(line("Frozen",   FreezeManager.isFrozen(target) ? "&ctrue" : "&afalse"));
+            lines.add(line("Gamemode", capitalize(target.getGameMode().name())));
+            lines.add(line("Position", formatLocation(target)));
         }
-        return List.of();
+
+        lines.add(Component.empty());
+        lines.add(TextUtil.toComponent("&#38c1fc&l---"));
+        return lines;
     }
 
-    private Component line(String key, String value) {
-        return TextUtil.toComponent("&8» &7" + key + ": &#38c1fc" + value);
+    private void deliverLines(CommandSender sender, List<Component> lines) {
+        if (sender instanceof Player sp) {
+            sp.getScheduler().run(plugin, t -> lines.forEach(sp::sendMessage), null);
+        } else {
+            lines.forEach(sender::sendMessage);
+        }
+    }
+
+    private void sendError(CommandSender sender, String key) {
+        if (sender instanceof Player p) {
+            p.sendMessage(plugin.messages().component(key, Map.of()));
+            SoundUtil.playError(plugin, p);
+        } else {
+            sender.sendMessage(plugin.messages().raw(key));
+        }
+    }
+
+    private String resolveIp(Player target) {
+        return target.getAddress() != null
+                ? target.getAddress().getAddress().getHostAddress()
+                : "unknown";
+    }
+
+    private String resolveClient(Player target) {
+        return target.getClientBrandName() != null ? target.getClientBrandName() : "unknown";
     }
 
     private String formatPlaytime(int ticks) {
@@ -137,16 +130,32 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
     }
 
     private String formatLocation(Player player) {
+        Location loc = player.getLocation();
         return String.format("%s, %.1f, %.1f, %.1f",
-                player.getWorld().getName(),
-                player.getLocation().getX(),
-                player.getLocation().getY(),
-                player.getLocation().getZ()
+                loc.getWorld().getName(),
+                loc.getX(),
+                loc.getY(),
+                loc.getZ()
         );
     }
 
-    private String capitalize(String s) {
+    private Component line(String key, String value) {
+        return TextUtil.toComponent("&8» &7" + key + ": &#38c1fc" + value);
+    }
+
+    private static String capitalize(String s) {
         if (s == null || s.isEmpty()) return s;
-        return s.charAt(0) + s.substring(1).toLowerCase();
+        return s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1).toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length == 1) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .toList();
+        }
+        return List.of();
     }
 }

@@ -25,7 +25,6 @@ public final class TextUtil {
 
         String[] parts = raw.split("%link%", -1);
 
-        // The URL component: clickable + hover tooltip
         Component urlComponent = Component.text(url)
                 .clickEvent(ClickEvent.openUrl(url))
                 .hoverEvent(HoverEvent.showText(toComponent("&7Click to open")));
