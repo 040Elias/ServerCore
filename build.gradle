@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = 'org.Elias040'
@@ -16,11 +17,22 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    implementation("org.xerial:sqlite-jdbc:3.47.1.0")
 }
 
 tasks {
     runServer {
         minecraftVersion("1.21")
+    }
+
+    shadowJar {
+        relocate("org.sqlite", "org.Elias040.servercore.libs.sqlite")
+        relocate("com.sun.jna", "org.Elias040.servercore.libs.jna")
+        archiveClassifier.set("")
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }
 

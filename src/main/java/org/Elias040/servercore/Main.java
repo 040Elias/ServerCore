@@ -2,6 +2,7 @@ package org.Elias040.servercore;
 
 import org.Elias040.servercore.commands.BroadcastCommand;
 import org.Elias040.servercore.commands.HealCommand;
+import org.Elias040.servercore.database.DatabaseManager;
 import org.Elias040.servercore.features.spawn.*;
 import org.Elias040.servercore.features.warp.*;
 import org.Elias040.servercore.features.invsee.InvSeeSessions;
@@ -36,6 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
+    private DatabaseManager databaseManager;
     private MessageManager messageManager;
     private SpawnManager spawnManager;
     private WarpManager warpManager;
@@ -45,11 +47,14 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        this.databaseManager = new DatabaseManager(this);
+        this.databaseManager.open();
+
         this.messageManager = new MessageManager(this);
         this.messageManager.loadMessages();
 
-        this.spawnManager = new SpawnManager(this);
-        this.warpManager = new WarpManager(this);
+        this.spawnManager = new SpawnManager(this, databaseManager);
+        this.warpManager = new WarpManager(this, databaseManager);
         this.moderationService = new ChatModerationService(this);
 
         FreezeListener freezeListener = new FreezeListener(this);
@@ -112,9 +117,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (spawnManager != null) spawnManager.shutdown();
-        if (warpManager  != null) warpManager.shutdown();
         InvSeeSessions.clear();
+        if (databaseManager != null) databaseManager.close();
     }
 
     public MessageManager messages() { return messageManager; }

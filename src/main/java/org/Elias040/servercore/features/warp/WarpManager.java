@@ -1,128 +1,149 @@
 package org.Elias040.servercore.features.warp;
 
+import org.Elias040.servercore.database.DatabaseManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class WarpManager {
 
     private final JavaPlugin plugin;
-    private final File file;
-    private YamlConfiguration cfg;
+    private final DatabaseManager db;
 
-    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "ServerCore-WarpIO");
-        t.setDaemon(true);
-        return t;
-    });
-
-    public WarpManager(JavaPlugin plugin) {
+    public WarpManager(JavaPlugin plugin, DatabaseManager db) {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "data/warps.yml");
-        load();
+        this.db = db;
     }
 
-    public void load() {
-        if (!file.exists()) {
-            try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            } catch (IOException e) {
-                plugin.getLogger().severe("Failed to create data/warps.yml: " + e.getMessage());
-            }
-        }
-        this.cfg = YamlConfiguration.loadConfiguration(file);
-    }
-
-    public void save() {
-        String yaml = cfg.saveToString();
-        ioExecutor.submit(() -> {
-            try (java.io.FileWriter fw = new java.io.FileWriter(file, java.nio.charset.StandardCharsets.UTF_8)) {
-                fw.write(yaml);
-            } catch (IOException e) {
-                plugin.getLogger().severe("Failed to save data/warps.yml: " + e.getMessage());
-            }
-        });
-    }
-
-    public void shutdown() {
-        ioExecutor.shutdown();
-        try {
-            if (!ioExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                plugin.getLogger().warning("WarpManager IO executor did not terminate in time.");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
+    public void shutdown() {}
 
     public boolean exists(String name) {
-        return cfg.contains("warps." + normalize(name) + ".world");
+        String sql = "SELECT 1 FROM warps WHERE name_key = ? LIMIT 1";
+        try (PreparedStatement ps = db.prepare(sql)) {
+            ps.setString(1, normalize(name));
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.exists() failed: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<String> getWarpNames() {
-        var section = cfg.getConfigurationSection("warps");
-        if (section == null) return Collections.emptyList();
-        return List.copyOf(section.getKeys(false));
+        String sql = "SELECT name_key FROM warps ORDER BY name_key";
+        try (PreparedStatement ps = db.prepare(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> names = new ArrayList<>();
+            while (rs.next()) {
+                names.add(rs.getString("name_key"));
+            }
+            return Collections.unmodifiableList(names);
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.getWarpNames() failed: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public List<String> getDisplayNames() {
-        return getWarpNames().stream()
-                .map(key -> cfg.getString("warps." + key + ".name", key))
-                .toList();
+        String sql = "SELECT display_name FROM warps ORDER BY name_key";
+        try (PreparedStatement ps = db.prepare(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> names = new ArrayList<>();
+            while (rs.next()) {
+                names.add(rs.getString("display_name"));
+            }
+            return Collections.unmodifiableList(names);
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.getDisplayNames() failed: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public void setWarp(String name, Location loc) {
-        String key = "warps." + normalize(name);
-        cfg.set(key + ".name",  name);
-        cfg.set(key + ".world", loc.getWorld().getName());
-        cfg.set(key + ".x",     loc.getX());
-        cfg.set(key + ".y",     loc.getY());
-        cfg.set(key + ".z",     loc.getZ());
-        cfg.set(key + ".yaw",   loc.getYaw());
-        cfg.set(key + ".pitch", loc.getPitch());
-        save();
+        String sql = """
+                INSERT INTO warps (name_key, display_name, world, x, y, z, yaw, pitch)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(name_key) DO UPDATE SET
+                    display_name = excluded.display_name,
+                    world        = excluded.world,
+                    x            = excluded.x,
+                    y            = excluded.y,
+                    z            = excluded.z,
+                    yaw          = excluded.yaw,
+                    pitch        = excluded.pitch""";
+        try (PreparedStatement ps = db.prepare(sql)) {
+            ps.setString(1, normalize(name));
+            ps.setString(2, name);
+            ps.setString(3, loc.getWorld().getName());
+            ps.setDouble(4, loc.getX());
+            ps.setDouble(5, loc.getY());
+            ps.setDouble(6, loc.getZ());
+            ps.setFloat (7, loc.getYaw());
+            ps.setFloat (8, loc.getPitch());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.setWarp() failed: " + e.getMessage());
+        }
     }
 
     public boolean deleteWarp(String name) {
-        String key = "warps." + normalize(name);
-        if (!cfg.contains(key)) return false;
-        cfg.set(key, null);
-        save();
-        return true;
+        String sql = "DELETE FROM warps WHERE name_key = ?";
+        try (PreparedStatement ps = db.prepare(sql)) {
+            ps.setString(1, normalize(name));
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.deleteWarp() failed: " + e.getMessage());
+            return false;
+        }
     }
 
     public Optional<Location> getWarp(String name) {
-        String key = "warps." + normalize(name);
-        String worldName = cfg.getString(key + ".world");
-        if (worldName == null || worldName.isBlank()) return Optional.empty();
+        String sql = "SELECT world, x, y, z, yaw, pitch FROM warps WHERE name_key = ? LIMIT 1";
+        try (PreparedStatement ps = db.prepare(sql)) {
+            ps.setString(1, normalize(name));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return Optional.empty();
 
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) return Optional.empty();
+                String worldName = rs.getString("world");
+                World world = Bukkit.getWorld(worldName);
+                if (world == null) return Optional.empty();
 
-        double x     = cfg.getDouble(key + ".x");
-        double y     = cfg.getDouble(key + ".y");
-        double z     = cfg.getDouble(key + ".z");
-        float  yaw   = (float) cfg.getDouble(key + ".yaw");
-        float  pitch = (float) cfg.getDouble(key + ".pitch");
+                double x     = rs.getDouble("x");
+                double y     = rs.getDouble("y");
+                double z     = rs.getDouble("z");
+                float  yaw   = rs.getFloat("yaw");
+                float  pitch = rs.getFloat("pitch");
 
-        return Optional.of(new Location(world, x, y, z, yaw, pitch));
+                return Optional.of(new Location(world, x, y, z, yaw, pitch));
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.getWarp() failed: " + e.getMessage());
+            return Optional.empty();
+        }
     }
 
     public String getDisplayName(String name) {
-        return cfg.getString("warps." + normalize(name) + ".name", name);
+        String sql = "SELECT display_name FROM warps WHERE name_key = ? LIMIT 1";
+        try (PreparedStatement ps = db.prepare(sql)) {
+            ps.setString(1, normalize(name));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("display_name");
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("WarpManager.getDisplayName() failed: " + e.getMessage());
+        }
+        return name;
     }
 
     private String normalize(String name) {
