@@ -5,6 +5,7 @@ Folia-native core plugin built for modern Minecraft servers.
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Platform](https://img.shields.io/badge/Platform-Folia-green)
 ![License](https://img.shields.io/badge/License-Custom-red)
+[![CodeFactor](https://www.codefactor.io/repository/github/040elias/servercore/badge)](https://www.codefactor.io/repository/github/040elias/servercore)
 
 [Download](https://github.com/040Elias/ServerCore/releases) · [Wiki](https://github.com/040Elias/ServerCore/wiki) · [Issues](https://github.com/040Elias/ServerCore/issues)
 
