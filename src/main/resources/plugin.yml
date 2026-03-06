@@ -3,141 +3,222 @@ version: '${version}'
 main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
-authors: [040Elias]
-description: A Folia Plugin with Core Features for a Server
+authors: [ 040Elias ]
+description: A Folia-native core plugin with all the features a server needs.
+website: https://github.com/040Elias/ServerCore
 folia-supported: true
 
 commands:
   spawn:
-    usage: /spawn <n>
+    description: Teleport to a named Spawn.
+    usage: /spawn <name>
     permission: servercore.spawn.use
-    default: true
+    permission-message: ''
   setspawn:
-    usage: /setspawn <n>
+    description: Create a Spawn with name at your location.
+    usage: /setspawn <name>
     permission: servercore.spawn.setspawn
+    permission-message: ''
   delspawn:
-    usage: /delspawn <n>
+    description: Delete a spawn.
+    usage: /delspawn <name>
     permission: servercore.spawn.delspawn
+    permission-message: ''
   warp:
-    usage: /warp <n>
+    description: Teleport to a warp.
+    usage: /warp <name>
     permission: servercore.warp.use
-    default: true
+    permission-message: ''
   setwarp:
-    usage: /setwarp <n>
+    description: Create a warp at your location.
+    usage: /setwarp <name>
     permission: servercore.warp.setwarp
+    permission-message: ''
   delwarp:
-    usage: /delwarp <n>
+    description: Delete a warp.
+    usage: /delwarp <name>
     permission: servercore.warp.delwarp
+    permission-message: ''
   invsee:
+    description: View a player's inventory (read-only).
     usage: /invsee <player>
     permission: servercore.invsee
+    permission-message: ''
   broadcast:
+    description: Broadcast a message to all players.
     usage: /broadcast <message>
     permission: servercore.broadcast
+    permission-message: ''
   nightvision:
+    description: Toggle persistent night vision.
     usage: /nightvision
     permission: servercore.nightvision
-    aliases: [nv]
+    permission-message: ''
+    aliases: [ nv ]
   ping:
+    description: Show your own or another player's ping.
     usage: /ping [player]
     permission: servercore.ping
+    permission-message: ''
   freeze:
+    description: Freeze a player in place for Staff purposes.
     usage: /freeze <player>
     permission: servercore.freeze
+    permission-message: ''
   unfreeze:
+    description: Unfreeze a frozen player.
     usage: /unfreeze <player>
     permission: servercore.unfreeze
+    permission-message: ''
   whois:
+    description: Show detailed info about a player.
     usage: /whois <player>
     permission: servercore.whois.use
+    permission-message: ''
   msg:
+    description: Send a private message to a player.
     usage: /msg <player> <message>
     permission: servercore.msg
-    aliases: [message, tell, whisper]
+    permission-message: ''
+    aliases: [ message, tell, whisper ]
   reply:
+    description: Reply to your last private message.
     usage: /reply <message>
     permission: servercore.msg
-    aliases: [r]
+    permission-message: ''
+    aliases: [ r ]
   discord:
+    description: Show the Discord server link.
     usage: /discord
     permission: servercore.discord
-    default: true
+    permission-message: ''
+  store:
+    description: Show the server store link.
+    usage: /store
+    permission: servercore.store
+    permission-message: ''
   live:
+    description: Announce a live stream with a URL.
     usage: /live <url>
     permission: servercore.live
+    permission-message: ''
   gm:
-    usage: /gm <mode> [player]
+    description: Change your gamemode.
+    usage: /gm <0|1|2|3|survival|creative|adventure|spectator> [player]
     permission: servercore.gamemode
+    permission-message: ''
   gmc:
+    description: Switch to Creative mode.
     usage: /gmc [player]
-    permission: servercore.gamemode
-    aliases: []
+    permission: servercore.gamemode.creative
+    permission-message: ''
   gms:
+    description: Switch to Survival mode.
     usage: /gms [player]
-    permission: servercore.gamemode
+    permission: servercore.gamemode.survival
+    permission-message: ''
   gma:
+    description: Switch to Adventure mode.
     usage: /gma [player]
-    permission: servercore.gamemode
+    permission: servercore.gamemode.adventure
+    permission-message: ''
   gmsp:
+    description: Switch to Spectator mode.
     usage: /gmsp [player]
-    permission: servercore.gamemode
+    permission: servercore.gamemode.spectator
+    permission-message: ''
   media:
+    description: Open the media Rank GUI for Infos.
     usage: /media
     permission: servercore.media
-    default: true
+    permission-message: ''
   heal:
+    description: Restore health and hunger for yourself or another player.
     usage: /heal [player]
     permission: servercore.heal
+    permission-message: ''
   servercore:
+    description: Main ServerCore admin command.
     usage: /servercore <reload|version>
-    description: Main ServerCore command
     permission: servercore.use
+    permission-message: ''
+    aliases: [ sc ]
 
 permissions:
+  servercore.spawn.use:
+    description: Use /spawn.
+    default: true
   servercore.spawn.setspawn:
+    description: Use /setspawn.
     default: op
   servercore.spawn.delspawn:
+    description: Use /delspawn.
     default: op
-  servercore.spawn.use:
-    default: true
   servercore.warp.use:
+    description: Use /warp.
     default: true
   servercore.warp.setwarp:
+    description: Use /setwarp.
     default: op
   servercore.warp.delwarp:
+    description: Use /delwarp.
     default: op
   servercore.invsee:
+    description: View another player's inventory.
     default: op
-  servercore.broadcast:
-    default: op
-  servercore.nightvision:
-    default: op
-  servercore.ping:
-    default: true
-  servercore.ping.other:
-    default: true
   servercore.freeze:
+    description: Use /freeze.
     default: op
   servercore.freeze.bypass:
+    description: Bypass the freeze effect.
     default: false
   servercore.freeze.notify:
+    description: Receive staff freeze notifications.
     default: op
   servercore.unfreeze:
+    description: Use /unfreeze.
     default: op
+  servercore.broadcast:
+    description: Use /broadcast.
+    default: op
+  servercore.live:
+    description: Use /live.
+    default: op
+  servercore.nightvision:
+    description: Use /nightvision.
+    default: true
+  servercore.ping:
+    description: Use /ping (own ping).
+    default: true
+  servercore.ping.other:
+    description: Use /ping <player> (others' ping).
+    default: true
   servercore.whois.use:
+    description: Use /whois.
     default: op
   servercore.whois.sensitive:
+    description: View sensitive data in /whois (IP, UUID).
     default: op
-  servercore.join.silent:
-    default: false
+  servercore.heal:
+    description: Use /heal on yourself.
+    default: op
+  servercore.heal.other:
+    description: Use /heal on other players.
+    default: op
   servercore.msg:
+    description: Use /msg and /reply.
     default: true
   servercore.discord:
+    description: Use /discord.
     default: true
-  servercore.live:
-    default: op
+  servercore.store:
+    description: Use /store.
+    default: true
+  servercore.join.silent:
+    description: Join/leave without a public message.
+    default: false
   servercore.gamemode:
-    description: "Change own gamemode (all modes)"
+    description: Change own gamemode (all modes).
     default: op
     children:
       servercore.gamemode.survival: true
@@ -145,36 +226,74 @@ permissions:
       servercore.gamemode.adventure: true
       servercore.gamemode.spectator: true
   servercore.gamemode.survival:
+    description: Switch to Survival mode.
     default: op
   servercore.gamemode.creative:
+    description: Switch to Creative mode.
     default: op
   servercore.gamemode.adventure:
+    description: Switch to Adventure mode.
     default: op
   servercore.gamemode.spectator:
+    description: Switch to Spectator mode.
     default: op
   servercore.gamemode.other:
+    description: Change another player's gamemode.
     default: op
   servercore.media:
+    description: Open the media GUI.
     default: true
   servercore.moderation.bypass.cooldown:
-    description: "Bypass chat message cooldown"
+    description: Bypass chat message cooldown.
     default: op
   servercore.moderation.bypass.similarity:
-    description: "Bypass repeated message filter"
+    description: Bypass repeated message filter.
     default: op
   servercore.moderation.bypass.uppercase:
-    description: "Bypass uppercase filter"
+    description: Bypass uppercase filter.
     default: op
   servercore.moderation.bypass.blacklist:
-    description: "Bypass chat blacklisted words"
+    description: Bypass word blacklist.
     default: op
   servercore.moderation.bypass.command:
-    description: "Bypass command cooldowns"
-    default: op
-  servercore.heal:
-    default: op
-  servercore.heal.other:
+    description: Bypass command cooldowns.
     default: op
   servercore.use:
-    description: "Access /servercore reload and version"
+    description: Access /servercore reload and version.
     default: op
+
+  servercore.*:
+    description: Grants all ServerCore permissions.
+    default: false
+    children:
+      servercore.spawn.use: true
+      servercore.spawn.setspawn: true
+      servercore.spawn.delspawn: true
+      servercore.warp.use: true
+      servercore.warp.setwarp: true
+      servercore.warp.delwarp: true
+      servercore.invsee: true
+      servercore.freeze: true
+      servercore.freeze.notify: true
+      servercore.unfreeze: true
+      servercore.broadcast: true
+      servercore.live: true
+      servercore.nightvision: true
+      servercore.ping: true
+      servercore.ping.other: true
+      servercore.whois.use: true
+      servercore.whois.sensitive: true
+      servercore.heal: true
+      servercore.heal.other: true
+      servercore.msg: true
+      servercore.discord: true
+      servercore.store: true
+      servercore.media: true
+      servercore.gamemode: true
+      servercore.gamemode.other: true
+      servercore.moderation.bypass.cooldown: true
+      servercore.moderation.bypass.similarity: true
+      servercore.moderation.bypass.uppercase: true
+      servercore.moderation.bypass.blacklist: true
+      servercore.moderation.bypass.command: true
+      servercore.use: true

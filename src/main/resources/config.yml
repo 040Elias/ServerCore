@@ -19,8 +19,19 @@ broadcast:
 discord:
   sound: "BLOCK.NOTE_BLOCK.PLING"
   lines:
+    - ""
     -  "&#38c1fcᴊᴏɪɴ ᴛʜᴇ Example ᴄᴏᴍᴍᴜɴɪᴛʏ"
     -  "&#38c1fc&l•&r &f&ndiscord.gg/yourserver"
+    - ""
+
+store:
+  sound: "BLOCK.NOTE_BLOCK.PLING"
+  lines:
+    - ""
+    -  "&#38c1fcᴠɪꜱɪᴛ ᴛʜᴇ ᴇxᴀᴍᴘʟᴇ ꜱᴛᴏʀᴇ"
+    -  "&#38c1fc&l•&r &f&nhttps://store.example.net/store"
+    - ""
+
 
 live:
   cooldown-minutes: 15

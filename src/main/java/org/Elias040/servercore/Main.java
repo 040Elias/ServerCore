@@ -28,6 +28,7 @@ import org.Elias040.servercore.features.msg.MsgQuitListener;
 import org.Elias040.servercore.features.media.MediaListener;
 import org.Elias040.servercore.features.nightvision.NightVisionListener;
 import org.Elias040.servercore.utils.MessageManager;
+import org.Elias040.servercore.commands.StoreCommand;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
@@ -77,6 +78,7 @@ public class Main extends JavaPlugin {
         registerCommand("servercore",  new ServerCoreCommand(this));
         LiveCommand liveCommand = new LiveCommand(this);
         registerCommand("discord",     new DiscordCommand(this));
+        registerCommand("store",       new StoreCommand(this));
         registerCommand("live",        liveCommand);
 
         GamemodeCommand gmCmd = new GamemodeCommand(this, null);
