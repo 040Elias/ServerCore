@@ -33,7 +33,7 @@ Most core plugins were built for Bukkit and bolted onto Folia after the fact. Se
 ## Features
 
 - **Spawns & Warps**
-  Named teleport points with configurable delay, action bar countdown, and movement cancellation. Folia-safe async teleport throughout. Data persisted in YAML with dedicated async IO.
+  Named teleport points with configurable delay, action bar countdown, and movement cancellation. Folia-safe async teleport throughout. Data persisted in a SQLite database (`servercore.db`) with prepared statements and WAL mode for concurrent access.
 
 - **Chat Moderation**
   Five independent toggleable checks with per-check bypass permissions:
@@ -92,6 +92,13 @@ Full permission nodes and defaults are in the [Wiki](../../wiki).
 | **Platforms** | Folia (native) · Paper (may work but not supported)  |
 | **Java** | 21                                                   |
 | **Permissions** | LuckPerms or any Bukkit-compatible permissions plugin |
+
+---
+
+## Storage
+
+Spawn and warp data is stored in a single SQLite database file (`plugins/ServerCore/servercore.db`).
+Tables are created automatically on first startup. No external database server is required — the SQLite driver is bundled inside the plugin jar.
 
 ---
 
