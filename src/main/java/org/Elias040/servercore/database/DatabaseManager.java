@@ -9,11 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Manages the single SQLite connection for the plugin.
- * Opens the connection, creates required tables, and exposes prepared statements.
- * All public methods are synchronized to be safe under Folia's multi-region threading.
- */
 public final class DatabaseManager {
 
     private final JavaPlugin plugin;
@@ -23,7 +18,6 @@ public final class DatabaseManager {
         this.plugin = plugin;
     }
 
-    /** Opens the SQLite connection and creates tables if they do not exist. */
     public synchronized void open() {
         try {
             File dataFolder = plugin.getDataFolder();
@@ -36,7 +30,6 @@ public final class DatabaseManager {
 
             connection = DriverManager.getConnection(url);
 
-            // Enable WAL mode for better concurrent read performance
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("PRAGMA journal_mode=WAL");
             }
@@ -49,7 +42,6 @@ public final class DatabaseManager {
         }
     }
 
-    /** Closes the SQLite connection. Call this in onDisable(). */
     public synchronized void close() {
         if (connection != null) {
             try {
@@ -63,8 +55,6 @@ public final class DatabaseManager {
         }
     }
 
-    /** Returns the live connection. Never null after {@link #open()} succeeds and before {@link #close()} is called.
-     * @throws IllegalStateException if the connection is not open */
     public synchronized Connection getConnection() {
         if (connection == null) {
             throw new IllegalStateException("DatabaseManager: connection is not open");
@@ -72,20 +62,12 @@ public final class DatabaseManager {
         return connection;
     }
 
-    // -------------------------------------------------------------------------
-    // Prepared statement helpers (callers must close the statement themselves)
-    // -------------------------------------------------------------------------
-
     public synchronized PreparedStatement prepare(String sql) throws SQLException {
         if (connection == null) {
             throw new IllegalStateException("DatabaseManager: cannot prepare statement — connection is not open");
         }
         return connection.prepareStatement(sql);
     }
-
-    // -------------------------------------------------------------------------
-    // Table creation
-    // -------------------------------------------------------------------------
 
     private void createTables() throws SQLException {
         try (Statement stmt = connection.createStatement()) {

@@ -25,7 +25,6 @@ public class SpawnManager {
         this.db = db;
     }
 
-    /** No-op: kept for API compatibility — database is managed by {@link DatabaseManager}. */
     public void shutdown() {}
 
     public boolean exists(String name) {
@@ -41,7 +40,6 @@ public class SpawnManager {
         }
     }
 
-    /** Returns lowercase name keys — used internally for lookups. */
     public List<String> getSpawnNames() {
         String sql = "SELECT name_key FROM spawns ORDER BY name_key";
         try (PreparedStatement ps = db.prepare(sql);

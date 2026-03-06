@@ -25,7 +25,6 @@ public class WarpManager {
         this.db = db;
     }
 
-    /** No-op: kept for API compatibility — database is managed by {@link DatabaseManager}. */
     public void shutdown() {}
 
     public boolean exists(String name) {
