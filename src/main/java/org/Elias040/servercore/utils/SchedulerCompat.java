@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -59,10 +60,10 @@ public final class SchedulerCompat {
                             t -> task.accept(t::cancel), null, initialDelayTicks, periodTicks);
             return foliaTask::cancel;
         } else {
-            org.bukkit.scheduler.BukkitTask[] ref = new org.bukkit.scheduler.BukkitTask[1];
-            ref[0] = Bukkit.getScheduler().runTaskTimer(plugin,
-                    () -> task.accept(() -> ref[0].cancel()), initialDelayTicks, periodTicks);
-            return () -> ref[0].cancel();
+            AtomicReference<org.bukkit.scheduler.BukkitTask> ref = new AtomicReference<>();
+            ref.set(Bukkit.getScheduler().runTaskTimer(plugin,
+                    () -> task.accept(() -> ref.get().cancel()), initialDelayTicks, periodTicks));
+            return () -> ref.get().cancel();
         }
     }
 
@@ -91,10 +92,10 @@ public final class SchedulerCompat {
                             t -> task.accept(t::cancel), initialDelayTicks, periodTicks);
             return foliaTask::cancel;
         } else {
-            org.bukkit.scheduler.BukkitTask[] ref = new org.bukkit.scheduler.BukkitTask[1];
-            ref[0] = Bukkit.getScheduler().runTaskTimer(plugin,
-                    () -> task.accept(() -> ref[0].cancel()), initialDelayTicks, periodTicks);
-            return () -> ref[0].cancel();
+            AtomicReference<org.bukkit.scheduler.BukkitTask> ref = new AtomicReference<>();
+            ref.set(Bukkit.getScheduler().runTaskTimer(plugin,
+                    () -> task.accept(() -> ref.get().cancel()), initialDelayTicks, periodTicks));
+            return () -> ref.get().cancel();
         }
     }
 }
