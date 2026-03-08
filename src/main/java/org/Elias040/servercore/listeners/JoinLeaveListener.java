@@ -2,7 +2,6 @@ package org.Elias040.servercore.listeners;
 
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,7 +30,8 @@ public class JoinLeaveListener implements Listener {
                 ? plugin.messages().component("join",       Map.of("player", player.getName()))
                 : plugin.messages().component("first-join", Map.of("player", player.getName()));
 
-        SchedulerCompat.runGlobal(plugin, () -> plugin.getServer().sendMessage(msg));
+        plugin.getServer().getGlobalRegionScheduler().execute(plugin,
+                () -> plugin.getServer().sendMessage(msg));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -43,6 +43,7 @@ public class JoinLeaveListener implements Listener {
 
         Component msg = plugin.messages().component("leave", Map.of("player", player.getName()));
 
-        SchedulerCompat.runGlobal(plugin, () -> plugin.getServer().sendMessage(msg));
+        plugin.getServer().getGlobalRegionScheduler().execute(plugin,
+                () -> plugin.getServer().sendMessage(msg));
     }
 }

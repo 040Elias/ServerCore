@@ -2,7 +2,6 @@ package org.Elias040.servercore.features.media;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.PlaceholderUtil;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -89,14 +88,14 @@ public class MediaListener implements Listener {
         boolean runAsConsole = cfg.getBoolean("media.item.runAsConsole", false);
         final String finalCmd = resolvedCmd;
 
-        SchedulerCompat.runForEntity(plugin, player, () -> player.closeInventory());
+        player.getScheduler().run(plugin, t -> player.closeInventory(), null);
 
         if (runAsConsole) {
-            SchedulerCompat.runGlobal(plugin,
+            plugin.getServer().getGlobalRegionScheduler().execute(plugin,
                     () -> plugin.getServer().dispatchCommand(
                             plugin.getServer().getConsoleSender(), finalCmd));
         } else {
-            SchedulerCompat.runForEntity(plugin, player, () -> player.performCommand(finalCmd));
+            player.getScheduler().run(plugin, t -> player.performCommand(finalCmd), null);
         }
     }
 }

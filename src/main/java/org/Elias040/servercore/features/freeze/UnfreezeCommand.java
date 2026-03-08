@@ -1,7 +1,6 @@
 package org.Elias040.servercore.features.freeze;
 
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -62,10 +61,10 @@ public class UnfreezeCommand implements CommandExecutor, TabCompleter {
 
         String targetName = target.getName();
 
-        SchedulerCompat.runForEntity(plugin, target, () -> {
+        target.getScheduler().run(plugin, t -> {
             FreezeManager.unfreeze(target);
             target.clearTitle();
-        });
+        }, null);
 
         if (sender instanceof Player p) {
             p.sendMessage(plugin.messages().component("freeze-unfrozen", Map.of("player", targetName)));

@@ -3,7 +3,6 @@ package org.Elias040.servercore.features.freeze;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -31,20 +30,20 @@ public class FreezeListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         String name = player.getName();
-        SchedulerCompat.runForEntity(plugin, player, () -> {
+        player.getScheduler().run(plugin, t -> {
             FreezeManager.syncFromPdc(player);
             if (FreezeManager.isFrozen(player)) {
                 player.showTitle(buildFreezeTitle());
                 notifyStaff("freeze-staff-rejoin", name);
             }
-        });
+        }, null);
     }
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         Player player = e.getPlayer();
         if (FreezeManager.isFrozen(player)) {
-            SchedulerCompat.runForEntity(plugin, player, () -> player.showTitle(buildFreezeTitle()));
+            player.getScheduler().run(plugin, t -> player.showTitle(buildFreezeTitle()), null);
         }
     }
 
@@ -88,11 +87,11 @@ public class FreezeListener implements Listener {
     private void notifyStaff(String messageKey, String playerName) {
         Component msg = plugin.messages().component(messageKey, Map.of("player", playerName));
         for (Player online : plugin.getServer().getOnlinePlayers()) {
-            SchedulerCompat.runForEntity(plugin, online, () -> {
+            online.getScheduler().run(plugin, t -> {
                 if (online.hasPermission("servercore.freeze.notify")) {
                     online.sendMessage(msg);
                 }
-            });
+            }, null);
         }
     }
 

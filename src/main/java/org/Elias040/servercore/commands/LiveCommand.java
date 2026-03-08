@@ -3,7 +3,6 @@ package org.Elias040.servercore.commands;
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.PlaceholderUtil;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.command.Command;
@@ -90,12 +89,12 @@ public class LiveCommand implements CommandExecutor {
                 .toList();
 
         for (Player online : plugin.getServer().getOnlinePlayers()) {
-            SchedulerCompat.runForEntity(plugin, online, () -> {
+            online.getScheduler().run(plugin, t -> {
                 for (Component line : lines) {
                     online.sendMessage(line);
                 }
                 SoundUtil.play(online, sound);
-            });
+            }, null);
         }
 
         return true;

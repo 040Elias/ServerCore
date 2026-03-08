@@ -2,7 +2,6 @@ package org.Elias040.servercore.features.spawn;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.ConfigUtil;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Location;
@@ -84,7 +83,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         final Location start     = player.getLocation().clone();
         final int[]    remaining = {delaySeconds};
 
-        SchedulerCompat.runForEntityAtFixedRate(plugin, player, (task) -> {
+        player.getScheduler().runAtFixedRate(plugin, (task) -> {
             if (!player.isOnline()) {
                 teleporting.remove(player.getUniqueId());
                 task.cancel();
@@ -113,18 +112,18 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
             SoundUtil.playTeleporting(plugin, player);
             remaining[0]--;
 
-        }, 1L, 20L);
+        }, null, 1L, 20L);
     }
 
     private void doTeleport(Player player, String spawnName, Location target) {
-        SchedulerCompat.runForEntity(plugin, player, () ->
+        player.getScheduler().run(plugin, (task) ->
                 player.teleportAsync(target).thenRun(() ->
-                        SchedulerCompat.runForEntity(plugin, player, () -> {
+                        player.getScheduler().run(plugin, t -> {
                             player.sendMessage(plugin.messages().component("spawn-teleport-success",
                                     Map.of("spawn_name", spawnName)));
                             SoundUtil.playTeleportSuccess(plugin, player);
-                        })
-                ));
+                        }, null)
+                ), null);
     }
 
     public void cleanup(UUID uuid) {

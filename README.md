@@ -11,9 +11,9 @@ Core plugin compatible with both Folia and Paper, built for modern Minecraft ser
 
 ---
 
-**A core plugin that runs natively on both Folia and Paper. No legacy baggage. No compromises.**
+**A Folia-native core plugin that also runs on Paper. No legacy baggage. No compromises.**
 
-ServerCore was designed with Folia's region-thread model in mind from the start — every scheduler call, every thread context, every async operation is intentional. A built-in compatibility layer (`SchedulerCompat`) detects the server platform at startup and delegates to the appropriate scheduler: Folia's `EntityScheduler` / `GlobalRegionScheduler` on Folia, and the standard `BukkitScheduler` on Paper.
+ServerCore was designed with Folia's region-thread model in mind from the start — every scheduler call, every thread context, every async operation is intentional. Since Paper 1.20.6+ ships the same scheduler APIs (`EntityScheduler`, `GlobalRegionScheduler`, `ScheduledTask`), the plugin works natively on Paper too — no compatibility layer needed.
 
 ---
 
@@ -22,7 +22,7 @@ ServerCore was designed with Folia's region-thread model in mind from the start 
 | | Typical legacy core plugins | ServerCore |
 |---|---|---|
 | Folia support | Incompatible or partial | Native on both Folia and Paper |
-| Threading model | Single main thread assumed | `SchedulerCompat` abstraction: `EntityScheduler` on Folia, `BukkitScheduler` on Paper |
+| Threading model | Single main thread assumed | `EntityScheduler` + `GlobalRegionScheduler` throughout |
 | Codebase | Years of accumulated legacy | Written for 1.21 from scratch |
 | Feature scope | Everything + kitchen sink | Focused — only what a server actually needs |
 | Chat moderation | Basic or absent | Built-in, async-safe, five independent checks |

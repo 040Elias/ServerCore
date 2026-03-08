@@ -1,7 +1,6 @@
 package org.Elias040.servercore.commands;
 
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -59,7 +58,7 @@ public class HealCommand implements CommandExecutor, TabCompleter {
     }
 
     private void heal(Player executor, Player target) {
-        SchedulerCompat.runForEntity(plugin, target, () -> {
+        target.getScheduler().run(plugin, t -> {
             AttributeInstance maxHealth = target.getAttribute(Attribute.MAX_HEALTH);
             double max = maxHealth != null ? maxHealth.getValue() : 20.0;
             target.setHealth(max);
@@ -67,15 +66,15 @@ public class HealCommand implements CommandExecutor, TabCompleter {
             target.setSaturation(20f);
 
             if (executor != null && !executor.getUniqueId().equals(target.getUniqueId())) {
-                SchedulerCompat.runForEntity(plugin, executor, () ->
+                executor.getScheduler().run(plugin, tt ->
                         executor.sendMessage(plugin.messages().component("heal-other",
-                                Map.of("player", target.getName()))));
+                                Map.of("player", target.getName()))), null);
                 target.sendMessage(plugin.messages().component("heal-by-other",
                         Map.of("player", executor.getName())));
             } else {
                 target.sendMessage(plugin.messages().component("heal-self", Map.of()));
             }
-        });
+        }, null);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.Elias040.servercore.features.nightvision;
 
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,12 +33,12 @@ public class NightVisionCommand implements CommandExecutor {
         var enabledMsg  = plugin.messages().component("nightvision-enabled",  Map.of());
         var disabledMsg = plugin.messages().component("nightvision-disabled", Map.of());
 
-        SchedulerCompat.runForEntity(plugin, p, () -> {
+        p.getScheduler().run(plugin, t -> {
             boolean enabled = NightVisionManager.toggle(p);
             var msg = enabled ? enabledMsg : disabledMsg;
             p.sendMessage(msg);
             p.sendActionBar(msg);
-        });
+        }, null);
 
         return true;
     }

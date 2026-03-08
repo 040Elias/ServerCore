@@ -3,7 +3,6 @@ package org.Elias040.servercore.features.moderation;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.Elias040.servercore.Main;
-import org.Elias040.servercore.utils.SchedulerCompat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,7 +50,7 @@ public final class ChatModerationListener implements Listener {
 
         event.setCancelled(true);
 
-        SchedulerCompat.runForEntity(plugin, player, () -> {
+        player.getScheduler().run(plugin, t -> {
             ViolationResult result = service.checkCommand(player, command);
             if (result != null) {
                 service.sendFeedback(player, result);
@@ -59,7 +58,7 @@ public final class ChatModerationListener implements Listener {
             }
             commandPassthrough.add(uuid);
             player.chat(rawMessage);
-        });
+        }, null);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
