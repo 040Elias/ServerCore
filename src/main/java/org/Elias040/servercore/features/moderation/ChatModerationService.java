@@ -2,6 +2,7 @@ package org.Elias040.servercore.features.moderation;
 
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -127,7 +128,7 @@ public final class ChatModerationService {
             case COMMAND_COOLDOWN -> "moderation-command-cooldown";
         };
         Component message = plugin.messages().component(key, result.placeholders());
-        player.getScheduler().run(plugin, t -> player.sendMessage(message), null);
+        SchedulerCompat.runForEntity(plugin, player, () -> player.sendMessage(message));
     }
 
     private static String cap(String s, int maxLength) {

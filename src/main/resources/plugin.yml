@@ -4,7 +4,7 @@ main: org.Elias040.servercore.Main
 api-version: '1.21'
 prefix: ServerCore
 authors: [ 040Elias ]
-description: A Folia-native core plugin with all the features a server needs.
+description: A core plugin compatible with both Folia and Paper.
 website: https://github.com/040Elias/ServerCore
 folia-supported: true
 

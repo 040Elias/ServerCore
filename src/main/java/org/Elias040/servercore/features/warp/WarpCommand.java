@@ -2,6 +2,7 @@ package org.Elias040.servercore.features.warp;
 
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.utils.ConfigUtil;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Location;
@@ -83,7 +84,7 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
         final Location start     = player.getLocation().clone();
         final int[]    remaining = {delaySeconds};
 
-        player.getScheduler().runAtFixedRate(plugin, (task) -> {
+        SchedulerCompat.runForEntityAtFixedRate(plugin, player, (task) -> {
             if (!player.isOnline()) {
                 teleporting.remove(player.getUniqueId());
                 task.cancel();
@@ -112,18 +113,18 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
             SoundUtil.playTeleporting(plugin, player, "warp.teleporting-sound");
             remaining[0]--;
 
-        }, null, 1L, 20L);
+        }, 1L, 20L);
     }
 
     private void doTeleport(Player player, String warpName, Location target) {
-        player.getScheduler().run(plugin, (task) ->
+        SchedulerCompat.runForEntity(plugin, player, () ->
                 player.teleportAsync(target).thenRun(() ->
-                        player.getScheduler().run(plugin, t -> {
+                        SchedulerCompat.runForEntity(plugin, player, () -> {
                             player.sendMessage(plugin.messages().component("warp-teleport-success",
                                     Map.of("warp_name", warpName)));
                             SoundUtil.playTeleportSuccess(plugin, player);
-                        }, null)
-                ), null);
+                        })
+                ));
     }
 
     public void cleanup(UUID uuid) {

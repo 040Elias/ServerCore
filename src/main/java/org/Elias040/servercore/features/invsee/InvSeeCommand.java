@@ -1,6 +1,7 @@
 package org.Elias040.servercore.features.invsee;
 
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -53,10 +54,10 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
         UUID targetId = target.getUniqueId();
         UUID viewerId = viewer.getUniqueId();
 
-        target.getScheduler().run(plugin, task -> {
+        SchedulerCompat.runForEntity(plugin, target, () -> {
             ItemStack[] snapshot = snapshotTargetInventory(target);
 
-            viewer.getScheduler().run(plugin, t2 -> {
+            SchedulerCompat.runForEntity(plugin, viewer, () -> {
                 String rawTitle = plugin.getConfig().getString("invsee.title", "&7InvSee: %target%");
                 rawTitle = rawTitle.replace("%target%", target.getName());
 
@@ -69,8 +70,8 @@ public class InvSeeCommand implements CommandExecutor, TabCompleter {
 
                 InvSeeSessions.open(viewerId, targetId, gui);
                 viewer.openInventory(gui);
-            }, null);
-        }, null);
+            });
+        });
 
         return true;
     }

@@ -2,6 +2,7 @@ package org.Elias040.servercore.features.freeze;
 
 import net.kyori.adventure.title.Title;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -65,10 +66,10 @@ public class FreezeCommand implements CommandExecutor, TabCompleter {
         Title freezeTitle = listener.buildFreezeTitle();
         String targetName = target.getName();
 
-        target.getScheduler().run(plugin, t -> {
+        SchedulerCompat.runForEntity(plugin, target, () -> {
             FreezeManager.freeze(target);
             target.showTitle(freezeTitle);
-        }, null);
+        });
 
         if (sender instanceof Player p) {
             p.sendMessage(plugin.messages().component("freeze-frozen", Map.of("player", targetName)));

@@ -1,9 +1,9 @@
 # ServerCore
-Folia-native core plugin built for modern Minecraft servers.
+Core plugin compatible with both Folia and Paper, built for modern Minecraft servers.
 
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.21.x-blue)
 ![Java](https://img.shields.io/badge/Java-21-orange)
-![Platform](https://img.shields.io/badge/Platform-Folia-green)
+![Platform](https://img.shields.io/badge/Platform-Folia%20%7C%20Paper-green)
 ![License](https://img.shields.io/badge/License-Custom-red)
 [![CodeFactor](https://www.codefactor.io/repository/github/040elias/servercore/badge)](https://www.codefactor.io/repository/github/040elias/servercore)
 
@@ -11,9 +11,9 @@ Folia-native core plugin built for modern Minecraft servers.
 
 ---
 
-**A Folia-native core plugin. No legacy baggage. No compromises.**
+**A core plugin that runs natively on both Folia and Paper. No legacy baggage. No compromises.**
 
-Most core plugins were built for Bukkit and bolted onto Folia after the fact. ServerCore was written for Folia from the ground up — every scheduler call, every thread context, every async operation is intentional. The result is a plugin that behaves correctly under Folia's region-thread model, not just one that doesn't immediately crash.
+ServerCore was designed with Folia's region-thread model in mind from the start — every scheduler call, every thread context, every async operation is intentional. A built-in compatibility layer (`SchedulerCompat`) detects the server platform at startup and delegates to the appropriate scheduler: Folia's `EntityScheduler` / `GlobalRegionScheduler` on Folia, and the standard `BukkitScheduler` on Paper.
 
 ---
 
@@ -21,8 +21,8 @@ Most core plugins were built for Bukkit and bolted onto Folia after the fact. Se
 
 | | Typical legacy core plugins | ServerCore |
 |---|---|---|
-| Folia support | Incompatible or partial | Built for Folia from day one |
-| Threading model | Single main thread assumed | `EntityScheduler` + `GlobalRegionScheduler` throughout |
+| Folia support | Incompatible or partial | Native on both Folia and Paper |
+| Threading model | Single main thread assumed | `SchedulerCompat` abstraction: `EntityScheduler` on Folia, `BukkitScheduler` on Paper |
 | Codebase | Years of accumulated legacy | Written for 1.21 from scratch |
 | Feature scope | Everything + kitchen sink | Focused — only what a server actually needs |
 | Chat moderation | Basic or absent | Built-in, async-safe, five independent checks |
@@ -89,7 +89,7 @@ Full permission nodes and defaults are in the [Wiki](../../wiki).
 | |                                                      |
 |---|------------------------------------------------------|
 | **Minecraft** | 1.21.x                                               |
-| **Platforms** | Folia (native) · Paper (may work but not supported)  |
+| **Platforms** | Folia (native) · Paper (native)                      |
 | **Java** | 21                                                   |
 | **Permissions** | LuckPerms or any Bukkit-compatible permissions plugin |
 

@@ -3,6 +3,7 @@ package org.Elias040.servercore.commands;
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
 import org.Elias040.servercore.features.freeze.FreezeManager;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -55,10 +56,10 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
         String  targetName = target.getName();
         String  targetUuid = target.getUniqueId().toString();
 
-        target.getScheduler().run(plugin, t -> {
+        SchedulerCompat.runForEntity(plugin, target, () -> {
             List<Component> lines = buildWhoisLines(target, targetName, targetUuid, sensitive);
             deliverLines(sender, lines);
-        }, null);
+        });
 
         return true;
     }
@@ -90,7 +91,7 @@ public class WhoisCommand implements CommandExecutor, TabCompleter {
 
     private void deliverLines(CommandSender sender, List<Component> lines) {
         if (sender instanceof Player sp) {
-            sp.getScheduler().run(plugin, t -> lines.forEach(sp::sendMessage), null);
+            SchedulerCompat.runForEntity(plugin, sp, () -> lines.forEach(sp::sendMessage));
         } else {
             lines.forEach(sender::sendMessage);
         }

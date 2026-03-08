@@ -3,6 +3,7 @@ package org.Elias040.servercore.features.media;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -41,7 +42,7 @@ public class MediaCommand implements CommandExecutor {
         }
 
         Inventory gui = buildGui(p);
-        p.getScheduler().run(plugin, t -> p.openInventory(gui), null);
+        SchedulerCompat.runForEntity(plugin, p, () -> p.openInventory(gui));
         return true;
     }
 

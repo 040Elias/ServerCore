@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.title.Title;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.command.Command;
@@ -60,11 +61,11 @@ public class BroadcastCommand implements CommandExecutor {
         String soundName = plugin.getConfig().getString("broadcast.sound", "block.note_block.bell");
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.getScheduler().run(plugin, t -> {
+            SchedulerCompat.runForEntity(plugin, player, () -> {
                 player.showTitle(title);
                 player.sendMessage(chatLine);
                 SoundUtil.play(player, soundName);
-            }, null);
+            });
         }
 
         return true;

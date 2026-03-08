@@ -2,6 +2,7 @@ package org.Elias040.servercore.features.msg;
 
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -67,7 +68,7 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
 
         p.sendMessage(senderMsg);
 
-        target.getScheduler().run(plugin, t -> target.sendMessage(receiverMsg), null);
+        SchedulerCompat.runForEntity(plugin, target, () -> target.sendMessage(receiverMsg));
 
         MsgSession.set(p.getUniqueId(), target.getUniqueId());
 

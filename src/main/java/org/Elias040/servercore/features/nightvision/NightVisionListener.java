@@ -1,7 +1,8 @@
 package org.Elias040.servercore.features.nightvision;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
+import org.Elias040.servercore.utils.TaskHandle;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,7 +23,7 @@ public class NightVisionListener implements Listener {
     private final Main plugin;
 
     private final Set<UUID> respawnPollers = ConcurrentHashMap.newKeySet();
-    private final ConcurrentHashMap<UUID, ScheduledTask> totemTasks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, TaskHandle> totemTasks = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Long> totemDeadlineNanos = new ConcurrentHashMap<>();
 
     private static final long RESPAWN_PERIOD_TICKS = 40L;
@@ -44,7 +45,7 @@ public class NightVisionListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        p.getScheduler().run(plugin, t -> ensureNv(p), null);
+        SchedulerCompat.runForEntity(plugin, p, () -> ensureNv(p));
     }
 
     @EventHandler
@@ -52,7 +53,7 @@ public class NightVisionListener implements Listener {
         UUID id = e.getPlayer().getUniqueId();
         respawnPollers.remove(id);
         totemDeadlineNanos.remove(id);
-        ScheduledTask task = totemTasks.remove(id);
+        TaskHandle task = totemTasks.remove(id);
         if (task != null) task.cancel();
     }
 
@@ -66,7 +67,7 @@ public class NightVisionListener implements Listener {
 
         AtomicLong elapsed = new AtomicLong(0L);
 
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, task -> {
+        SchedulerCompat.runGlobalAtFixedRate(plugin, task -> {
             long nowTicks = elapsed.getAndAdd(RESPAWN_PERIOD_TICKS) + 1L;
 
             Player p = Bukkit.getPlayer(uuid);
@@ -84,7 +85,7 @@ public class NightVisionListener implements Listener {
 
             if (p.isDead()) return;
 
-            p.getScheduler().run(plugin, t -> ensureNv(p), null);
+            SchedulerCompat.runForEntity(plugin, p, () -> ensureNv(p));
 
             respawnPollers.remove(uuid);
             task.cancel();
@@ -103,16 +104,16 @@ public class NightVisionListener implements Listener {
         totemTasks.compute(id, (k, existing) -> {
             if (existing != null) return existing;
 
-            return p.getScheduler().runAtFixedRate(plugin, t -> {
+            return SchedulerCompat.runForEntityAtFixedRate(plugin, p, task -> {
                 Long dl = totemDeadlineNanos.get(id);
                 if (dl == null || System.nanoTime() > dl || !p.isOnline()) {
-                    ScheduledTask cur = totemTasks.remove(id);
+                    TaskHandle cur = totemTasks.remove(id);
                     if (cur != null) cur.cancel();
                     totemDeadlineNanos.remove(id);
                     return;
                 }
                 ensureNv(p);
-            }, null, 1L, TOTEM_PERIOD_TICKS);
+            }, 1L, TOTEM_PERIOD_TICKS);
         });
     }
 }

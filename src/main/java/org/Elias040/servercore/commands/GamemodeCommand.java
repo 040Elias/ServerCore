@@ -2,6 +2,7 @@ package org.Elias040.servercore.commands;
 
 import net.kyori.adventure.text.Component;
 import org.Elias040.servercore.Main;
+import org.Elias040.servercore.utils.SchedulerCompat;
 import org.Elias040.servercore.utils.SoundUtil;
 import org.Elias040.servercore.utils.TextUtil;
 import org.bukkit.Bukkit;
@@ -89,7 +90,7 @@ public class GamemodeCommand implements CommandExecutor, TabCompleter {
         final String  targetName   = target.getName();
         final String  gamemodeName = capitalize(mode.name());
 
-        target.getScheduler().run(plugin, t -> {
+        SchedulerCompat.runForEntity(plugin, target, () -> {
             target.setGameMode(mode);
             target.sendMessage(plugin.messages().component("gamemode.self", Map.of(
                     "player",   targetName,
@@ -105,11 +106,11 @@ public class GamemodeCommand implements CommandExecutor, TabCompleter {
             ));
 
             if (sender instanceof Player sp) {
-                sp.getScheduler().run(plugin, t2 -> sp.sendMessage(msgOther), null);
+                SchedulerCompat.runForEntity(plugin, sp, () -> sp.sendMessage(msgOther));
             } else {
                 sender.sendMessage(msgOther);
             }
-        }, null);
+        });
     }
 
     private void sendError(CommandSender sender, String key) {
